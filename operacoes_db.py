@@ -10,7 +10,7 @@ class Operacoes:
         self.conn = sqlite3.connect(arquivo)
         self.cursor = self.conn.cursor()
 
-    def inserir(self, ativo, ean, produto, quantidade, valor_custo, valor_venda, ultima_compra):
+    def cadastrarProduto(self, ativo, ean, produto, quantidade, valor_custo, valor_venda, ultima_compra):
         try:
             ativo, ean, produto, quantidade, valor_custo, valor_venda, ultima_compra = str(ativo).upper(), str(ean).upper(), str(
                 produto).upper(), str(quantidade).upper(), str(valor_custo).upper().replace(',', '.'), str(valor_venda).upper().replace(',', '.'), str(ultima_compra).upper()
@@ -21,6 +21,16 @@ class Operacoes:
             return f"O {produto=} {ean=} foi cadastrado com sucesso!"
         except Exception as e:
             return f"Ocorreu um erro ao cadastrar = {e}"
+
+    def adicionaItem(self, ean, produto, valor):
+        try:
+            sql = "INSERT INTO venda_tmp (ean, produto,valor) VALUES (?,?,?)"
+            self.cursor.execute(
+                sql, (ean, produto, valor))
+            self.conn.commit()
+            return f"O {produto=} {ean=} foi adicionado!"
+        except Exception as e:
+            return f"Ocorreu um erro ao adicionar = {e}"
 
     def editar(self, id, ativo, ean, produto, quantidade, valor_custo, valor_venda, ultima_compra):
         try:
@@ -54,7 +64,17 @@ class Operacoes:
             itens.append(linha)
         return contador, itens
 
-    def buscar(self, termo):
+    def listar_tmp(self):
+        itens = []
+        sql = "SELECT * FROM venda_tmp"
+        self.cursor.execute(sql)
+        contador = 0
+        for linha in self.cursor.fetchall():
+            contador += 1
+            itens.append(linha)
+        return itens
+
+    def buscarProduto(self, termo):
         print(termo)
         try:
             contador = 0
@@ -81,6 +101,7 @@ class Operacoes:
 
 if __name__ == "__main__":
     operacoes = Operacoes("DB\\dbase.db")
+    print(operacoes.listar_tmp())
     # retorno = operacoes.inserir(
     #     "1", "7891234", 'acucar', '10', '1,00', '4,50', '')
     # print(retorno)
