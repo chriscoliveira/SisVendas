@@ -396,6 +396,7 @@
     <addaction name="actionCancelaItem"/>
     <addaction name="actionFinalizaCupom"/>
     <addaction name="actionCancelaCupom"/>
+    <addaction name="actionRetornar"/>
    </widget>
    <addaction name="menuSubTotal"/>
   </widget>
@@ -404,7 +405,7 @@
     <string>CancelaItem</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+C</string>
+    <string>C</string>
    </property>
   </action>
   <action name="actionFinalizaCupom">
@@ -412,7 +413,7 @@
     <string>FinalizaCupom</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+F</string>
+    <string>F</string>
    </property>
   </action>
   <action name="actionCancelaCupom">
@@ -420,7 +421,15 @@
     <string>CancelaCupom</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Shift+C</string>
+    <string>Shift+C</string>
+   </property>
+  </action>
+  <action name="actionRetornar">
+   <property name="text">
+    <string>Retornar</string>
+   </property>
+   <property name="shortcut">
+    <string>Esc</string>
    </property>
   </action>
  </widget>

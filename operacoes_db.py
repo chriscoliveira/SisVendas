@@ -32,6 +32,16 @@ class Operacoes:
         except Exception as e:
             return f"Ocorreu um erro ao adicionar = {e}"
 
+    def cadastrarVenda(self, data, itens, total_compra, forma_pagamento, troco):
+        try:
+            sql = "INSERT INTO vendas (data, itens,total_compra,forma_pagamento,troco) VALUES (?,?,?,?,?)"
+            self.cursor.execute(
+                sql, (data, itens, total_compra, forma_pagamento, troco))
+            self.conn.commit()
+            return True
+        except Exception as e:
+            return False
+
     def editar(self, id, ativo, ean, produto, quantidade, valor_custo, valor_venda, ultima_compra):
         try:
             ativo, ean, produto, quantidade, valor_custo, valor_venda, ultima_compra = str(ativo).upper(), str(ean).upper(), str(
@@ -54,19 +64,19 @@ class Operacoes:
         else:
             return f"Nenhum registro excluido"
 
-    def listar_tudo(self):
+    def listar_tudo(self, tabela):
         itens = []
-        sql = "SELECT * FROM produtos"
+        sql = "SELECT * FROM "+tabela
         self.cursor.execute(sql)
         contador = 0
         for linha in self.cursor.fetchall():
             contador += 1
             itens.append(linha)
-        return contador, itens
+        return itens
 
-    def listar_tmp(self):
+    def agrupaItensTmp(self, ):
         itens = []
-        sql = "SELECT * FROM venda_tmp"
+        sql = "select count(ean),ean,produto,sum(valor) from venda_tmp group by ean"
         self.cursor.execute(sql)
         contador = 0
         for linha in self.cursor.fetchall():
@@ -98,10 +108,15 @@ class Operacoes:
         except Exception as e:
             return '', '', '', '', '', '', ''
 
+    def limpaTemp(self):
+        sql = "DELETE FROM venda_tmp"
+        self.cursor.execute(sql)
+        self.conn.commit()
+
 
 if __name__ == "__main__":
     operacoes = Operacoes("DB\\dbase.db")
-    print(operacoes.listar_tmp())
+
     # retorno = operacoes.inserir(
     #     "1", "7891234", 'acucar', '10', '1,00', '4,50', '')
     # print(retorno)
@@ -111,8 +126,12 @@ if __name__ == "__main__":
     # retorno = operacoes.remover('7')
     # print(retorno)
 
-    # retorno = operacoes.listar_tudo()
+    # retorno = operacoes.listar_tudo(tabela='venda_tmp')
+    # retorno = operacoes.agrupaItensTmp()
     # print(retorno)
 
     # retorno = operacoes.buscar('789123')
-    # print(retorno)
+
+    retorno = operacoes.cadastrarVenda(
+        '20-01-2023', 'aaaaaa', '50', 'dinheiro', '25')
+    print(retorno)

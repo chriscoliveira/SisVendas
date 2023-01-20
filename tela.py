@@ -179,9 +179,12 @@ class Ui_MainWindow(object):
         self.actionFinalizaCupom.setObjectName("actionFinalizaCupom")
         self.actionCancelaCupom = QtWidgets.QAction(MainWindow)
         self.actionCancelaCupom.setObjectName("actionCancelaCupom")
+        self.actionRetornar = QtWidgets.QAction(MainWindow)
+        self.actionRetornar.setObjectName("actionRetornar")
         self.menuSubTotal.addAction(self.actionCancelaItem)
         self.menuSubTotal.addAction(self.actionFinalizaCupom)
         self.menuSubTotal.addAction(self.actionCancelaCupom)
+        self.menuSubTotal.addAction(self.actionRetornar)
         self.menuBar.addAction(self.menuSubTotal.menuAction())
 
         self.retranslateUi(MainWindow)
@@ -206,11 +209,13 @@ class Ui_MainWindow(object):
         self.bt_finalizar.setText(_translate("MainWindow", "FINALIZAR COMPRA"))
         self.menuSubTotal.setTitle(_translate("MainWindow", "Cupom"))
         self.actionCancelaItem.setText(_translate("MainWindow", "CancelaItem"))
-        self.actionCancelaItem.setShortcut(_translate("MainWindow", "Ctrl+C"))
+        self.actionCancelaItem.setShortcut(_translate("MainWindow", "C"))
         self.actionFinalizaCupom.setText(_translate("MainWindow", "FinalizaCupom"))
-        self.actionFinalizaCupom.setShortcut(_translate("MainWindow", "Ctrl+F"))
+        self.actionFinalizaCupom.setShortcut(_translate("MainWindow", "F"))
         self.actionCancelaCupom.setText(_translate("MainWindow", "CancelaCupom"))
-        self.actionCancelaCupom.setShortcut(_translate("MainWindow", "Ctrl+Shift+C"))
+        self.actionCancelaCupom.setShortcut(_translate("MainWindow", "Shift+C"))
+        self.actionRetornar.setText(_translate("MainWindow", "Retornar"))
+        self.actionRetornar.setShortcut(_translate("MainWindow", "Esc"))
 
 
 if __name__ == "__main__":
