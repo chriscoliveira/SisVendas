@@ -22,7 +22,7 @@ class Operacoes:
         except Exception as e:
             return f"Ocorreu um erro ao cadastrar = {e}"
 
-    def adicionaItem(self, ean, produto, valor):
+    def addItemNaCompra(self, ean, produto, valor):
         try:
             sql = "INSERT INTO venda_tmp (ean, produto,valor) VALUES (?,?,?)"
             self.cursor.execute(
@@ -32,6 +32,7 @@ class Operacoes:
         except Exception as e:
             return f"Ocorreu um erro ao adicionar = {e}"
 
+    # cadastra a venda na tabela vendas
     def cadastrarVenda(self, data, itens, total_compra, forma_pagamento, pago,troco):
         try:
             sql = "INSERT INTO vendas (data, itens,total_compra,forma_pagamento,valor_pago,troco) VALUES (?,?,?,?,?,?)"
@@ -54,16 +55,6 @@ class Operacoes:
         except Exception as e:
             return f"Ocorreu um erro ao alterar = {e}"
 
-    def remover_todos_produtos(self, tabela, id):
-        sql = "DELETE FROM "+tabela+" WHERE id=?"
-        self.cursor.execute(sql, (id,))
-        self.conn.commit()
-        afetado = self.cursor.rowcount
-        if afetado > 0:
-            return f"O excluido com sucesso!"
-        else:
-            return f"Nenhum registro excluido"
-
     def listar_tudo(self, tabela):
         itens = []
         sql = "SELECT ean,produto,valor FROM "+tabela
@@ -74,7 +65,7 @@ class Operacoes:
             itens.append(linha)
         return itens
 
-    def listar_itens_tmp(self,ean):
+    def remove_item_a_cancelar(self,ean):
         itens = []
         sql = "SELECT id,ean,produto,valor FROM venda_tmp where ean = ?"
         self.cursor.execute(sql,(ean,))
@@ -86,10 +77,19 @@ class Operacoes:
         id = 0
         for i in itens:
             id = i[0]
-        
-        retorno = self.remover_todos_produtos('venda_tmp',id)
-        
+        print(id)
+        retorno = self.remove_produto_selecionado('venda_tmp',id)
 
+    def remove_produto_selecionado(self, tabela, id):
+        sql = "DELETE FROM "+tabela+" WHERE id=?"
+        self.cursor.execute(sql, (id,))
+        self.conn.commit()
+        afetado = self.cursor.rowcount
+        if afetado > 0:
+            return f"O excluido com sucesso!"
+        else:
+            return f"Nenhum registro excluido"
+        
     def agrupaItensTmp(self, ):
         itens = []
         sql = "select count(ean),ean,produto,sum(valor) from venda_tmp group by ean"
@@ -142,12 +142,12 @@ if __name__ == "__main__":
     # retorno = operacoes.remover('7')
     # print(retorno)
 
-    # retorno = operacoes.listar_tudo(tabela='venda_tmp')
+    retorno = operacoes.listar_tudo(tabela='venda_tmp')
     # retorno = operacoes.agrupaItensTmp()
-    # print(retorno)
+    print(retorno)
 
     # retorno = operacoes.buscar('789123')
-    retorno = operacoes.listar_itens_tmp('789')
+    retorno = operacoes.remove_item_a_cancelar('789')
     # retorno = operacoes.cadastrarVenda(
     #     '20-01-2023', 'aaaaaa', '50', 'dinheiro', '25')
     print(retorno)

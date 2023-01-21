@@ -138,15 +138,15 @@ class Novo(QMainWindow, Ui_MainWindow):
 
         if retorno[0] == 1:
             self.lbl_item.setText(
-                f' {qtd}x {retorno[2]}')
+                f' {qtd}x {retorno[2]} R$ {retorno[5]}')
             for i in range(int(qtd)):
                 total = self.lbl_total.text().replace('R$ ', '')
                 total = float(total)+float(retorno[5])
                 self.lbl_total.setText(f'R$ {total}')
 
                 self.lst_itens.addItem(
-                    f'{retorno[1]} {retorno[2]} - 1x{retorno[5]}')
-                operacoes.adicionaItem(retorno[1], retorno[2], retorno[5])
+                    f'{retorno[1]}\t{retorno[2]}\n\t\t1x R$ {retorno[5]}')
+                operacoes.addItemNaCompra(retorno[1], retorno[2], retorno[5])
                 self.lst_itens.scrollToBottom()
                 self.txt_ean.setText('')
         else:
@@ -174,11 +174,12 @@ class Novo(QMainWindow, Ui_MainWindow):
             print('nao excluiu os temps')
         
     def cancelaItem(self):
-        listItems=self.lst_itens.selectedItems()
-        if not listItems: return
-        print(self.lst_itens.row(listItems))        
-        for item in listItems:
-            self.lst_itens.takeItem(self.lst_itens.row(item))
+        # listItems=self.lst_itens.selectedItems()
+        # if not listItems: return
+        # print(self.lst_itens.row(listItems))        
+        # for item in listItems:
+        #     self.lst_itens.takeItem(self.lst_itens.row(item))
+        self.lst_itens.selectedItems()
 
 qt = QApplication(sys.argv)
 
