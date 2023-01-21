@@ -8,7 +8,7 @@ import os
 from tela import *
 import sys
 from operacoes_db import *
-from datetime import date
+from datetime import *
 
 sistema = sys.platform
 if sistema == 'linux':
@@ -84,7 +84,7 @@ class Novo(QMainWindow, Ui_MainWindow):
         if totalCompra >0:
             self.lbl_item.setText('Subtotal')
             self.frame_subtotal.show()
-            self.frame_subtotal.move(50, 50)
+            self.frame_subtotal.move(40, 54)
             self.lb_total.setText('R$ '+str("{:.2f}".format(totalCompra)))
             self.ed_valorPago.setText(str(totalCompra))
             self.ed_valorPago.setEnabled(False)
@@ -156,7 +156,7 @@ class Novo(QMainWindow, Ui_MainWindow):
 
     def fechaCupom(self, total, pago,troco, forma):
         data_atual = date.today()
-        data = data_atual.strftime('%d-%m-%Y')
+        data = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         itens = operacoes.agrupaItensTmp()
         print(f'{total=} {pago=} {troco=} {forma=} {itens=} {data=}')
         retorno = operacoes.cadastrarVenda(
