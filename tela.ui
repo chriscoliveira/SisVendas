@@ -142,7 +142,7 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>10</y>
+      <y>5</y>
       <width>521</width>
       <height>500</height>
      </rect>
@@ -165,70 +165,7 @@
     <layout class="QGridLayout" name="gridLayout_4">
      <item row="0" column="1">
       <layout class="QGridLayout" name="gridLayout_3">
-       <item row="5" column="2">
-        <widget class="QLabel" name="lb_total">
-         <property name="font">
-          <font>
-           <pointsize>16</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>TOTAL</string>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="2">
-        <widget class="QLineEdit" name="ed_valorPago">
-         <property name="maximumSize">
-          <size>
-           <width>200</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>16</pointsize>
-          </font>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="1">
-        <widget class="QLabel" name="label_5">
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>16</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>VALOR PAGO</string>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="1">
-        <widget class="QLabel" name="label_6">
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>40</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>16</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>TROCO</string>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="2">
+       <item row="9" column="2">
         <widget class="QLabel" name="lb_troco">
          <property name="maximumSize">
           <size>
@@ -242,7 +179,7 @@
           </font>
          </property>
          <property name="text">
-          <string>TOTAL</string>
+          <string/>
          </property>
         </widget>
        </item>
@@ -261,6 +198,42 @@
          </property>
          <property name="text">
           <string>PIX</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1" colspan="2">
+        <widget class="QRadioButton" name="rb_dinheiro">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>16</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>DINHEIRO</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="1">
+        <widget class="QLabel" name="label_5">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>16</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>VALOR PAGO</string>
          </property>
         </widget>
        </item>
@@ -300,8 +273,8 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="1" colspan="2">
-        <widget class="QRadioButton" name="rb_dinheiro">
+       <item row="9" column="1">
+        <widget class="QLabel" name="label_6">
          <property name="maximumSize">
           <size>
            <width>16777215</width>
@@ -314,7 +287,7 @@
           </font>
          </property>
          <property name="text">
-          <string>DINHEIRO</string>
+          <string>TROCO</string>
          </property>
         </widget>
        </item>
@@ -339,7 +312,19 @@
          </property>
         </widget>
        </item>
-       <item row="5" column="1">
+       <item row="7" column="2">
+        <widget class="QLabel" name="lb_total">
+         <property name="font">
+          <font>
+           <pointsize>16</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>TOTAL</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="1">
         <widget class="QLabel" name="label_4">
          <property name="maximumSize">
           <size>
@@ -357,7 +342,7 @@
          </property>
         </widget>
        </item>
-       <item row="8" column="1" colspan="2">
+       <item row="10" column="1" colspan="2">
         <widget class="QPushButton" name="bt_finalizar">
          <property name="maximumSize">
           <size>
@@ -375,6 +360,52 @@
          </property>
         </widget>
        </item>
+       <item row="8" column="2">
+        <widget class="QLineEdit" name="ed_valorPago">
+         <property name="maximumSize">
+          <size>
+           <width>200</width>
+           <height>40</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>16</pointsize>
+          </font>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="2">
+        <widget class="QLabel" name="lbl_tipo_pagto">
+         <property name="font">
+          <font>
+           <pointsize>16</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <widget class="QLabel" name="label_7">
+         <property name="font">
+          <font>
+           <pointsize>16</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>PAGAMENTO EM</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
     </layout>
@@ -386,7 +417,7 @@
      <x>0</x>
      <y>0</y>
      <width>1440</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuSubTotal">
@@ -405,7 +436,7 @@
     <string>CancelaItem</string>
    </property>
    <property name="shortcut">
-    <string>C</string>
+    <string>Shift+C</string>
    </property>
   </action>
   <action name="actionFinalizaCupom">
@@ -413,7 +444,7 @@
     <string>FinalizaCupom</string>
    </property>
    <property name="shortcut">
-    <string>F</string>
+    <string>Ctrl+F</string>
    </property>
   </action>
   <action name="actionCancelaCupom">
@@ -421,7 +452,7 @@
     <string>CancelaCupom</string>
    </property>
    <property name="shortcut">
-    <string>Shift+C</string>
+    <string>Ctrl+C</string>
    </property>
   </action>
   <action name="actionRetornar">

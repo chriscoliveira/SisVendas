@@ -32,11 +32,11 @@ class Operacoes:
         except Exception as e:
             return f"Ocorreu um erro ao adicionar = {e}"
 
-    def cadastrarVenda(self, data, itens, total_compra, forma_pagamento, troco):
+    def cadastrarVenda(self, data, itens, total_compra, forma_pagamento, pago,troco):
         try:
-            sql = "INSERT INTO vendas (data, itens,total_compra,forma_pagamento,troco) VALUES (?,?,?,?,?)"
+            sql = "INSERT INTO vendas (data, itens,total_compra,forma_pagamento,valor_pago,troco) VALUES (?,?,?,?,?,?)"
             self.cursor.execute(
-                sql, (data, itens, total_compra, forma_pagamento, troco))
+                sql, (data, itens, total_compra, forma_pagamento, pago,troco))
             self.conn.commit()
             return True
         except Exception as e:
@@ -54,8 +54,8 @@ class Operacoes:
         except Exception as e:
             return f"Ocorreu um erro ao alterar = {e}"
 
-    def remover(self, id):
-        sql = "DELETE FROM produtos WHERE id=?"
+    def remover_todos_produtos(self, tabela, id):
+        sql = "DELETE FROM "+tabela+" WHERE id=?"
         self.cursor.execute(sql, (id,))
         self.conn.commit()
         afetado = self.cursor.rowcount
@@ -66,13 +66,29 @@ class Operacoes:
 
     def listar_tudo(self, tabela):
         itens = []
-        sql = "SELECT * FROM "+tabela
+        sql = "SELECT ean,produto,valor FROM "+tabela
         self.cursor.execute(sql)
         contador = 0
         for linha in self.cursor.fetchall():
             contador += 1
             itens.append(linha)
         return itens
+
+    def listar_itens_tmp(self,ean):
+        itens = []
+        sql = "SELECT id,ean,produto,valor FROM venda_tmp where ean = ?"
+        self.cursor.execute(sql,(ean,))
+        contador = 0
+        for linha in self.cursor.fetchall():
+            contador += 1
+            itens.append(linha)
+        
+        id = 0
+        for i in itens:
+            id = i[0]
+        
+        retorno = self.remover_todos_produtos('venda_tmp',id)
+        
 
     def agrupaItensTmp(self, ):
         itens = []
@@ -115,7 +131,7 @@ class Operacoes:
 
 
 if __name__ == "__main__":
-    operacoes = Operacoes("DB\\dbase.db")
+    operacoes = Operacoes("DB/dbase.db")
 
     # retorno = operacoes.inserir(
     #     "1", "7891234", 'acucar', '10', '1,00', '4,50', '')
@@ -131,7 +147,7 @@ if __name__ == "__main__":
     # print(retorno)
 
     # retorno = operacoes.buscar('789123')
-
-    retorno = operacoes.cadastrarVenda(
-        '20-01-2023', 'aaaaaa', '50', 'dinheiro', '25')
+    retorno = operacoes.listar_itens_tmp('789')
+    # retorno = operacoes.cadastrarVenda(
+    #     '20-01-2023', 'aaaaaa', '50', 'dinheiro', '25')
     print(retorno)
