@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1891</width>
+    <width>1681</width>
     <height>801</height>
    </rect>
   </property>
@@ -141,8 +141,8 @@
    <widget class="QFrame" name="frame_subtotal">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>5</y>
+      <x>1120</x>
+      <y>170</y>
       <width>521</width>
       <height>500</height>
      </rect>
@@ -415,7 +415,7 @@
      <rect>
       <x>1120</x>
       <y>10</y>
-      <width>531</width>
+      <width>521</width>
       <height>151</height>
      </rect>
     </property>
@@ -462,7 +462,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1891</width>
+     <width>1681</width>
      <height>21</height>
     </rect>
    </property>
@@ -470,12 +470,20 @@
     <property name="title">
      <string>Cupom</string>
     </property>
+    <addaction name="actionRetornar"/>
     <addaction name="actionCancelaItem"/>
     <addaction name="actionFinalizaCupom"/>
     <addaction name="actionCancelaCupom"/>
-    <addaction name="actionRetornar"/>
+   </widget>
+   <widget class="QMenu" name="menuCaixa">
+    <property name="title">
+     <string>Caixa</string>
+    </property>
+    <addaction name="actionFecha_Caixa"/>
+    <addaction name="actionAbre_Caixa"/>
    </widget>
    <addaction name="menuSubTotal"/>
+   <addaction name="menuCaixa"/>
   </widget>
   <action name="actionCancelaItem">
    <property name="text">
@@ -507,6 +515,16 @@
    </property>
    <property name="shortcut">
     <string>Esc</string>
+   </property>
+  </action>
+  <action name="actionAbre_Caixa">
+   <property name="text">
+    <string>Redução Z</string>
+   </property>
+  </action>
+  <action name="actionFecha_Caixa">
+   <property name="text">
+    <string>Fecha Caixa</string>
    </property>
   </action>
  </widget>
