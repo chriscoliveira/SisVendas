@@ -8,16 +8,18 @@ import os
 from tela import *
 import sys
 from operacoes_db import *
+from acesso import *
 from datetime import *
 
 sistema = sys.platform
 if sistema == 'linux':
     operacoes = Operacoes('DB/dbase.db')
+    acesso = Acesso('DB/dbase.db')
     foto = 'img/tela.jpg'
 else:
     operacoes = Operacoes('DB\\dbase.db')
     foto = 'img\\tela.jpg'
-
+    acesso = Acesso('DB\\dbase.db')
 
 
 class Novo(QMainWindow, Ui_MainWindow):
@@ -26,33 +28,92 @@ class Novo(QMainWindow, Ui_MainWindow):
         super().setupUi(self)
 
         self.frame_subtotal.hide()
+        self.frame_login.hide()
 
-        self.lbl_total.setText('R$ 0.00')
-        self.lbl_item.setText('Caixa Livre')
-        # verifica se existe cupom aberto
-        self.verificaCupomAberto()
+        # verifica se existe o usuario logado
+        try:
+            login, nome = self.verificaUsuarioAtivo()
+        except:
+            self.lbl_rodape.setText(f'Não Existe Operador Logado')
+            login, nome = False, False
+            self.lbl_total.setText('')
+            self.lbl_item.setText('Caixa Fechado')
+            self.txt_ean.setFocus()
+            self.txt_ean.returnPressed.connect(
+                lambda: self.entraOperador(self.txt_ean.text()))
 
-        # entrada de ean na passagem de compra
-        self.txt_ean.setFocus()
-        self.txt_ean.returnPressed.connect(self.adicionaItem)
+        # se tiver logado abre o sistema
+        if login and nome:
+            self.lbl_rodape.setText(f'LOGIN: {login} - OPERADOR: {nome}')
 
-        # menu de acoes
-        self.actionFinalizaCupom.triggered.connect(self.abreSubtotal)
-        self.actionRetornar.triggered.connect(self.retornarTela)
-        self.actionCancelaItem.triggered.connect(self.cancelaItem)
+            self.lbl_total.setText('R$ 0.00')
+            self.lbl_item.setText('Caixa Livre')
 
-        # acoes do subtotal
-        self.rb_dinheiro.toggled.connect(lambda: self.calculaTroco("dinheiro"))
-        self.rb_debito.toggled.connect(lambda: self.calculaTroco("debito"))
-        self.rb_credito.toggled.connect(lambda: self.calculaTroco("credito"))
-        self.rb_pix.toggled.connect(lambda: self.calculaTroco("pix"))
+            # verifica se existe cupom aberto
+            self.verificaCupomAberto()
 
-        self.ed_valorPago.textEdited.connect(lambda: self.exibeTroco())
-        self.bt_finalizar.clicked.connect(lambda: self.fechaCupom(
-            self.lb_total.text(), self.ed_valorPago.text(),self.lb_troco.text(), self.lbl_tipo_pagto.text()))
+            # entrada de ean na passagem de compra
+            self.txt_ean.setFocus()
+            self.txt_ean.returnPressed.connect(self.adicionaItem)
+
+            # duplo clique na lista cancela o item
+            self.lst_itens.itemDoubleClicked.connect(
+                lambda: self.cancelaItem())
+
+            # menu de acoes
+            self.actionFinalizaCupom.triggered.connect(self.abreSubtotal)
+            self.actionRetornar.triggered.connect(self.retornarTela)
+            self.actionCancelaItem.triggered.connect(self.cancelaItem)
+            self.actionCancelaCupom.triggered.connect(self.cancelaCupon)
+
+            # acoes do subtotal
+            self.rb_dinheiro.toggled.connect(
+                lambda: self.calculaTroco("dinheiro"))
+            self.rb_debito.toggled.connect(lambda: self.calculaTroco("debito"))
+            self.rb_credito.toggled.connect(
+                lambda: self.calculaTroco("credito"))
+            self.rb_pix.toggled.connect(lambda: self.calculaTroco("pix"))
+            self.ed_valorPago.textEdited.connect(lambda: self.exibeTroco())
+            self.bt_finalizar.clicked.connect(lambda: self.fechaCupom(
+                self.lb_total.text(), self.ed_valorPago.text(), self.lb_troco.text(), self.lbl_tipo_pagto.text()))
+
+    def entraOperador(self, log):
+        login, senha, nome = acesso.buscaOperador(log)
+
+        self.frame_login.show()
+        self.frame_login.move(80, 80)
+        self.lbl_msg_login.setText(f"Digite a senha para o usuario: {login}")
+        self.ed_senha_login.setFocus()
+        self.ed_senha_login.returnPressed.connect(
+            lambda: self.verificaSenhaCorreta(self.ed_senha_login.text(), senha, login, nome))
+
+    def verificaSenhaCorreta(self, senhadigitada, senhabanco, login, nome):
+        if str(senhabanco) == str(senhadigitada):
+            self.lbl_item.setText('Caixa Aberto')
+            self.frame_login.hide()
+            with open('operador.txt', 'w') as arq:
+                arq.write(f'login={login},{nome}\n')
+            self.txt_ean.setText('')
+            self.txt_ean.setFocus()
+        else:
+            self.lbl_item.setText('Caixa Fechado - Senha Inválida')
+            self.frame_login.hide()
+            self.txt_ean.setText('')
+            self.txt_ean.setFocus()
+
+    def verificaUsuarioAtivo(self):
+        with open('operador.txt', 'r') as usertxt:
+            usertxt = usertxt.readlines()
+            for i in usertxt:
+                if i.startswith('login='):
+                    dados = i.split('=')[1]
+        if dados:
+            login, nome = dados.split(',')
+        print(login, nome)
+        return login, nome
 
     def verificaCupomAberto(self):
-        # total = self.lbl_total.text().replace('R$ ', '')
+        self.lst_itens.clear()
         total = float(0)
         retorno = operacoes.listar_tudo(tabela='venda_tmp')
         if retorno:
@@ -60,33 +121,45 @@ class Novo(QMainWindow, Ui_MainWindow):
             for i in retorno:
                 total += float(i[2])
                 self.lst_itens.addItem(
-                    f'{i[0]} {i[1]} - 1x{i[2]}')
+                    f'{i[0]}\t{i[1]}\n\t\t\t\t1x R$ {i[2]}')
 
             total = "{:.2f}".format(total)
             self.lbl_total.setText(f'R$ {total}')
 
     def retornarTela(self):
+        self.rb_debito.setCheckable(False)
+        self.rb_credito.setCheckable(False)
+        self.rb_dinheiro.setCheckable(False)
+        self.rb_pix.setCheckable(False)
+
+        self.rb_debito.setCheckable(True)
+        self.rb_credito.setCheckable(True)
+        self.rb_dinheiro.setCheckable(True)
+        self.rb_pix.setCheckable(True)
+
         self.lbl_item.setText('Cupom Aberto')
         self.frame_subtotal.hide()
+        # self.frame_login.show()
         self.txt_ean.setEnabled(True)
         self.txt_ean.setFocus()
 
     def abreSubtotal(self):
-        totalCompra = float(str(self.lbl_total.text()).replace('R$','').strip())
-        
+        totalCompra = float(
+            str(self.lbl_total.text()).replace('R$', '').strip())
+
         self.exibeTroco()
-        
+
         # self.rb_dinheiro.setChecked(False)
         # self.rb_debito.setChecked(False)
         # self.rb_credito.setChecked(False)
         # self.rb_pix.setChecked(False)
-        
-        if totalCompra >0:
+
+        if totalCompra > 0:
             self.lbl_item.setText('Subtotal')
             self.frame_subtotal.show()
-            self.frame_subtotal.move(40, 54)
+            self.frame_subtotal.move(30, 54)
             self.lb_total.setText('R$ '+str("{:.2f}".format(totalCompra)))
-            self.ed_valorPago.setText(str(totalCompra))
+            self.ed_valorPago.setText(str("{:.2f}".format(totalCompra)))
             self.ed_valorPago.setEnabled(False)
             self.bt_finalizar.setEnabled(False)
             self.txt_ean.setEnabled(False)
@@ -102,22 +175,23 @@ class Novo(QMainWindow, Ui_MainWindow):
             troco = self.exibeTroco()
             # if troco>0:
             #     print(troco,type(troco))
-            if tipo == 'debito'or tipo == 'credito' or tipo == 'pix':
+            if tipo == 'debito' or tipo == 'credito' or tipo == 'pix':
                 self.ed_valorPago.setEnabled(False)
             elif tipo == 'dinheiro':
                 self.ed_valorPago.setEnabled(True)
                 self.ed_valorPago.setFocus()
-        
+
     def exibeTroco(self):
         try:
             total = float(self.lb_total.text().replace('R$ ', ''))
-            pago = float(self.ed_valorPago.text().replace('R$ ', '').replace(',','.'))
+            pago = float(self.ed_valorPago.text().replace(
+                'R$ ', '').replace(',', '.'))
             troco = float(pago)-float(total)
-            troco = float("{:.2f}".format(troco))
+            # troco = "{:.2f}".format(troco)
             # self.ed_valorPago.setText(f'R$ {pago}')
             # print(troco)
-            if troco>=0:
-                self.lb_troco.setText(f'R$ {troco}')
+            if troco >= 0:
+                self.lb_troco.setText(f'R$ {"{:.2f}".format(troco)}')
                 self.bt_finalizar.setEnabled(True)
             else:
                 self.lb_troco.setText(f'Valor insulficiente')
@@ -133,34 +207,42 @@ class Novo(QMainWindow, Ui_MainWindow):
         else:
             qtd, ean = 1, ean[0]
 
-        retorno = operacoes.buscarProduto(ean)
-        print(f'{retorno=}')
-
-        if retorno[0] == 1:
-            self.lbl_item.setText(
-                f' {qtd}x {retorno[2]} R$ {retorno[5]}')
-            for i in range(int(qtd)):
-                total = self.lbl_total.text().replace('R$ ', '')
-                total = float(total)+float(retorno[5])
-                self.lbl_total.setText(f'R$ {total}')
-
-                self.lst_itens.addItem(
-                    f'{retorno[1]}\t{retorno[2]}\n\t\t1x R$ {retorno[5]}')
-                operacoes.addItemNaCompra(retorno[1], retorno[2], retorno[5])
-                self.lst_itens.scrollToBottom()
-                self.txt_ean.setText('')
-        else:
-            QMessageBox.warning(
-                self, 'Aviso', f'Produto nao encontrado')
+        if str(ean).lower() == 'cf':  # cancela cupom
             self.txt_ean.setText('')
+            print('cancela cupom')
+        elif str(ean).lower() == 'if':  # cancela item
+            self.txt_ean.setText('')
+            print('cancela item')
+        else:
+            retorno = operacoes.buscarProduto(ean)
+            print(f'{retorno=}')
 
-    def fechaCupom(self, total, pago,troco, forma):
+            if retorno[0] == 1:
+                self.lbl_item.setText(
+                    f' {qtd}x {retorno[2]} R$ {retorno[5]}')
+                for i in range(int(qtd)):
+                    total = self.lbl_total.text().replace('R$ ', '')
+                    total = float(total)+float(retorno[5])
+                    self.lbl_total.setText(f'R$ {"{:.2f}".format(total)}')
+
+                    self.lst_itens.addItem(
+                        f'{retorno[1]}\t{retorno[2]}\n\t\t\t\t1x R$ {retorno[5]}')
+                    operacoes.addItemNaCompra(
+                        retorno[1], retorno[2], retorno[5])
+                    self.lst_itens.scrollToBottom()
+                    self.txt_ean.setText('')
+            else:
+                QMessageBox.warning(
+                    self, 'Aviso', f'Produto nao encontrado')
+                self.txt_ean.setText('')
+
+    def fechaCupom(self, total, pago, troco, forma):
         data_atual = date.today()
         data = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         itens = operacoes.agrupaItensTmp()
         print(f'{total=} {pago=} {troco=} {forma=} {itens=} {data=}')
         retorno = operacoes.cadastrarVenda(
-            data, str(itens), total, forma, pago,troco)
+            data, str(itens), total, forma, pago, troco)
         print(retorno)
         if retorno:
             operacoes.limpaTemp()
@@ -172,14 +254,43 @@ class Novo(QMainWindow, Ui_MainWindow):
             self.frame_subtotal.hide()
         else:
             print('nao excluiu os temps')
-        
+
     def cancelaItem(self):
-        # listItems=self.lst_itens.selectedItems()
-        # if not listItems: return
-        # print(self.lst_itens.row(listItems))        
-        # for item in listItems:
-        #     self.lst_itens.takeItem(self.lst_itens.row(item))
-        self.lst_itens.selectedItems()
+        try:
+            linhaSelecionada = self.lst_itens.currentItem().text()
+            linhaSelecionada = linhaSelecionada.split('\t')
+            ean = linhaSelecionada[0]
+            produto = linhaSelecionada[1]
+
+            ret = QMessageBox.question(
+                self, 'ATENÇÃO!!!', f"Tem certeza que deseja cancelar o item:\n{ean} {produto} ", QMessageBox.Yes | QMessageBox.Cancel)
+
+            if ret == QMessageBox.Yes:
+                retorno = operacoes.remove_item_a_cancelar(ean)
+                print(retorno)
+                if retorno:
+                    self.verificaCupomAberto()
+        except Exception as e:
+            pass
+
+    def cancelaCupon(self):
+        valores = operacoes.verificaUltimoCupom()
+        if valores[1] == 'SIM':
+            ret = QMessageBox.question(
+                self, 'ATENÇÃO!!!', f"Tem certeza que deseja cupom o item:\nCOO = {valores[0]}, Total do cupom = {valores[4]}", QMessageBox.Yes | QMessageBox.Cancel)
+
+            if ret == QMessageBox.Yes:
+                retorno = operacoes.cancelaCupom(valores[0])
+                if retorno:
+                    QMessageBox.information(
+                        self, 'ATENÇÃO!!!', f"Cupom Cancelado!")
+                else:
+                    QMessageBox.warning(self, 'ATENÇÃO!!!',
+                                        f"Erro ao cancelar")
+        else:
+            QMessageBox.warning(
+                self, 'ATENÇÃO!!!', f"Impossivel, o ultimo cupom ja esta cancelado!")
+
 
 qt = QApplication(sys.argv)
 

@@ -2,6 +2,7 @@ import sqlite3
 from time import sleep
 import os
 import re
+import sys
 
 
 class Operacoes:
@@ -33,11 +34,11 @@ class Operacoes:
             return f"Ocorreu um erro ao adicionar = {e}"
 
     # cadastra a venda na tabela vendas
-    def cadastrarVenda(self, data, itens, total_compra, forma_pagamento, pago,troco):
+    def cadastrarVenda(self, data, itens, total_compra, forma_pagamento, pago, troco):
         try:
             sql = "INSERT INTO vendas (data, itens,total_compra,forma_pagamento,valor_pago,troco) VALUES (?,?,?,?,?,?)"
             self.cursor.execute(
-                sql, (data, itens, total_compra, forma_pagamento, pago,troco))
+                sql, (data, itens, total_compra, forma_pagamento, pago, troco))
             self.conn.commit()
             return True
         except Exception as e:
@@ -65,20 +66,21 @@ class Operacoes:
             itens.append(linha)
         return itens
 
-    def remove_item_a_cancelar(self,ean):
+    def remove_item_a_cancelar(self, ean):
         itens = []
         sql = "SELECT id,ean,produto,valor FROM venda_tmp where ean = ?"
-        self.cursor.execute(sql,(ean,))
+        self.cursor.execute(sql, (ean,))
         contador = 0
         for linha in self.cursor.fetchall():
             contador += 1
             itens.append(linha)
-        
+
         id = 0
         for i in itens:
             id = i[0]
         print(id)
-        retorno = self.remove_produto_selecionado('venda_tmp',id)
+        retorno = self.remove_produto_selecionado('venda_tmp', id)
+        return retorno
 
     def remove_produto_selecionado(self, tabela, id):
         sql = "DELETE FROM "+tabela+" WHERE id=?"
@@ -86,10 +88,10 @@ class Operacoes:
         self.conn.commit()
         afetado = self.cursor.rowcount
         if afetado > 0:
-            return f"O excluido com sucesso!"
+            return True
         else:
-            return f"Nenhum registro excluido"
-        
+            return False
+
     def agrupaItensTmp(self, ):
         itens = []
         sql = "select count(ean),ean,produto,sum(valor) from venda_tmp group by ean"
@@ -129,9 +131,29 @@ class Operacoes:
         self.cursor.execute(sql)
         self.conn.commit()
 
+    def verificaUltimoCupom(self):
+        sql = 'SELECT * FROM vendas ORDER BY coo DESC limit 1'
+        return self.cursor.execute(sql).fetchall()[0]
+
+    def cancelaCupom(self, coo):
+        sql = "UPDATE vendas SET ativo='CANCELADO' WHERE coo=?"
+        self.cursor.execute(sql, (coo,))
+        self.conn.commit()
+        afetado = self.cursor.rowcount
+        if afetado > 0:
+            return True
+        else:
+            return False
+
 
 if __name__ == "__main__":
-    operacoes = Operacoes("DB/dbase.db")
+    sistema = sys.platform
+    if sistema == 'linux':
+        operacoes = Operacoes('DB/dbase.db')
+        foto = 'img/tela.jpg'
+    else:
+        operacoes = Operacoes('DB\\dbase.db')
+        foto = 'img\\tela.jpg'
 
     # retorno = operacoes.inserir(
     #     "1", "7891234", 'acucar', '10', '1,00', '4,50', '')
@@ -142,12 +164,13 @@ if __name__ == "__main__":
     # retorno = operacoes.remover('7')
     # print(retorno)
 
-    retorno = operacoes.listar_tudo(tabela='venda_tmp')
-    # retorno = operacoes.agrupaItensTmp()
-    print(retorno)
+    # retorno = operacoes.listar_tudo(tabela='venda_tmp')
+    # # retorno = operacoes.agrupaItensTmp()
+    # print(retorno)
 
-    # retorno = operacoes.buscar('789123')
-    retorno = operacoes.remove_item_a_cancelar('789')
+    # # retorno = operacoes.buscar('789123')
+    # retorno = operacoes.remove_item_a_cancelar('789')
     # retorno = operacoes.cadastrarVenda(
     #     '20-01-2023', 'aaaaaa', '50', 'dinheiro', '25')
+    retorno = operacoes.verificaUltimoCupom()
     print(retorno)
