@@ -25,6 +25,9 @@ data_e_hora_atuais = datetime.now()
 data_atual = date.today()
 data = data_e_hora_atuais.strftime('%d-%m-%Y %H:%M:%S')
 
+import importlib
+
+
 
 class Novo(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
@@ -34,40 +37,7 @@ class Novo(QMainWindow, Ui_MainWindow):
         self.setFixedSize(1200, 800)
         self.frame_subtotal.hide()
         self.frame_login.hide()
-
-        # verifica se existe o usuario logado
-        login, nome = False, False
-        try:
-            login, nome = acesso.buscaOperadorAtivo()
-        except:
-            pass
-
-        # se tiver logado abre o sistema
-        if login and nome:
-            self.iniciaPDV(login, nome)
-        else:
-            self.iniciaPDVsemOperador()
-
-    def iniciaPDVsemOperador(self):
-        self.lbl_rodape.setText(f'Não Existe Operador Logado')
-        login, nome = False, False
-        self.lbl_total.setText('')
-        self.lbl_item.setText('Caixa Fechado')
-        self.txt_ean.setFocus()
-        self.txt_ean.returnPressed.connect(
-            lambda: self.entraOperador(self.txt_ean.text()))
-
-    def iniciaPDV(self, login, nome):
-        self.lbl_rodape.setText(f'LOGIN: {login} - OPERADOR: {nome}')
-        self.lbl_total.setText('R$ 0.00')
-        self.lbl_item.setText('Caixa Livre')
-
-        # verifica se existe cupom aberto
-        self.verificaCupomAberto()
-
-        # entrada de ean na passagem de compra
-        self.txt_ean.setFocus()
-        self.txt_ean.returnPressed.connect(self.adicionaItem)
+        self.frame_logout.hide()
 
         # duplo clique na lista cancela o item
         self.lst_itens.itemDoubleClicked.connect(
@@ -78,8 +48,9 @@ class Novo(QMainWindow, Ui_MainWindow):
         self.actionRetornar.triggered.connect(self.retornarTela)
         self.actionCancelaItem.triggered.connect(self.cancelaItem)
         self.actionCancelaCupom.triggered.connect(self.cancelaCupon)
-        self.actionFecha_Caixa.triggered.connect(self.retiraOperador)
-
+        self.actionSaiOperador.triggered.connect(self.retiraOperador)
+        self.actionEntraOperador.triggered.connect(self.abreFrameLogin)
+        
         # acoes do subtotal
         self.rb_dinheiro.toggled.connect(
             lambda: self.calculaTroco("dinheiro"))
@@ -90,28 +61,75 @@ class Novo(QMainWindow, Ui_MainWindow):
         self.ed_valorPago.textEdited.connect(lambda: self.exibeTroco())
         self.bt_finalizar.clicked.connect(lambda: self.fechaCupom(
             self.lb_total.text(), self.ed_valorPago.text(), self.lb_troco.text(), self.lbl_tipo_pagto.text()))
+        
+        self.txt_ean.returnPressed.connect(self.adicionaItem)
+        self.bt_saiOperador.clicked.connect(
+                lambda: self.tentaRetirarOperador(self.ed_usuario_logout.text(),self.ed_senha_logout.text()))
+        
+        
+        # verifica se existe o usuario logado
+        login, nome = False, False
+        try:
+            login, nome = acesso.buscaOperadorAtivo()
+            print(f'{login=}{nome=}')
+        except Exception as e:
+            print(f'{login=}{nome=}')
+            print('nao ha operador atvio '+e)
 
-    # 1 se o caixa tiver fechado o campo de txt_ean aguarda o codigo de login do operador do caixa
-    #  e mostra um frame_login para que o operador digite a senha de acesso
-    def entraOperador(self, log):
+        
+        self.iniciaPDV(login=login, nome=nome)
+
+    def iniciaPDV(self, login=False, nome=False):
+        if login:
+            self.lbl_rodape.setText(f'LOGIN: {login} - OPERADOR: {nome}')
+            self.lbl_total.setText('R$ 0.00')
+            self.lbl_item.setText('Caixa Livre')
+
+            # verifica se existe cupom aberto
+            self.verificaCupomAberto()
+
+            # entrada de ean na passagem de compra
+            self.txt_ean.setFocus()
+            
+        else:
+            self.lbl_rodape.setText(f'Não Existe Operador Logado')
+            login, nome = False, False
+            self.lbl_total.setText('')
+            self.lbl_item.setText('Caixa Fechado')
+            self.txt_ean.setFocus()
+            # self.txt_ean.returnPressed.connect(
+            #     lambda: self.entraOperador(self.txt_ean.text()))
+    
+    # 1 abre o form de login e espera que o usuario preencha os dados
+    def abreFrameLogin(self):
+        self.frame_login.show()
+        self.frame_login.move(30, 54)
+        self.ed_senha_login.setText('')
+        self.ed_senha_login.setFocus()
+        self.bt_entraOperador.clicked.connect(
+                lambda: self.entraOperador(log=self.ed_usuario_login.text(), sen=self.ed_senha_login.text()))
+        # self.ed_senha_login.returnPressed.connect(
+        # lambda: self.entraOperador(log=self.ed_usuario_login.text(), sen=self.ed_senha_login.text()))
+            
+    # 2 recebe os dados e envia para comparação
+    def entraOperador(self,log,sen):
+        print('entraOperador',log,sen)
         try:
             login, senha, nome = acesso.buscaOperador(log)
-            self.frame_login.show()
-            self.frame_login.move(30, 54)
-            self.lbl_msg_login.setText(
-                f"Digite a senha para o usuario: {login}")
-            self.ed_senha_login.setText('')
-            self.ed_senha_login.setFocus()
-            self.ed_senha_login.returnPressed.connect(
-                lambda: self.verificaSenhaCorreta(self.ed_senha_login.text(), senha, login, nome))
+            self.verificaSenhaCorreta(senhadigitada=sen, senhabanco=senha,login=log,nome=nome)
+            # self.frame_login.show()
+            # self.frame_login.move(30, 54)
+            # self.lbl_msg_login.setText(
+            #     f"Digite a senha para o usuario: {login}")
+            pass
+            
         except:
             self.txt_ean.setText('')
             self.txt_ean.setFocus()
             self.lbl_rodape.setText(
                 'Caixa Fechado, Usuario invalido! Tente novamente ')
 
-    # 2 apos receber o codigo do operador e a senha valida se as informações estao corretas.
-    # se tiver tudo ok abre o sistema, senao volta a tela de caixa fechado
+    # 3 compara e libera o uso
     def verificaSenhaCorreta(self, senhadigitada, senhabanco, login, nome):
         if str(senhabanco) == str(senhadigitada):
             self.lbl_rodape.setText(f'LOGIN: {login} - OPERADOR: {nome}')
@@ -123,11 +141,10 @@ class Novo(QMainWindow, Ui_MainWindow):
             retorno = acesso.entraOperador(login, nome)
             if retorno:
                 login, nome = acesso.buscaOperadorAtivo()
+                print('entrou '+login+' - '+nome)
+                print('operador entrou no sistema')
+                
                 self.iniciaPDV(login, nome)
-                self.__init__()
-                # import importlib
-                # import sys
-                # importlib.reload(sys.modules[__name__])
 
             else:
                 print('erro ao entrar o operador')
@@ -141,23 +158,33 @@ class Novo(QMainWindow, Ui_MainWindow):
 
     # da a saida do operador no caixa
     def retiraOperador(self):
-        self.frame_login.show()
-        self.frame_login.move(30, 54)
-        self.lbl_msg_login.setText(
-            f"Digite o usuario para fazer o fechamento do caixa")
-        self.ed_senha_login.setText('')
-        self.ed_senha_login.setFocus()
-        self.ed_senha_login.returnPressed.connect(
-            lambda: self.tentaRetirarOperador(self.ed_senha_login.text()))
-
-    def tentaRetirarOperador(self, login):
-        retorno = acesso.retiraOperador(login)
+        self.frame_logout.show()
+        self.frame_logout.move(30, 54)
+        retorno = operacoes.listar_tudo(tabela='venda_tmp')
         if retorno:
-            self.lbl_total.setText('')
-            self.lbl_item.setText('Caixa Fechado')
-            self.lbl_rodape.setText('Não existe Operador Logado')
-            self.txt_ean.setFocus()
-            self.frame_login.hide()
+            self.frame_logout.hide()
+        else:
+            # self.lbl_msg_login.setText(
+            #     f"Digite o usuario para fazer o fechamento do caixa")
+            self.ed_senha_login.setText('')
+            self.ed_usuario_login.setText('')
+            self.ed_usuario_login.setFocus()
+            
+    def tentaRetirarOperador(self, login,senha):
+        print(login,senha)
+        blogin, bsenha, bnome = acesso.buscaOperador(login)
+        if str(blogin) == str(login) and str(bsenha) == str(senha):
+            print(f'{blogin=} {login=} {bsenha} {senha}')
+            retorno = acesso.retiraOperador(login)
+            print(retorno)
+            if retorno:
+                self.lbl_total.setText('')
+                self.lbl_item.setText('Caixa Fechado')
+                self.lbl_rodape.setText('Não existe Operador Logado')
+                self.txt_ean.setFocus()
+                self.frame_login.hide()
+        else:
+            print(f'R={blogin=} {login=} {bsenha} {senha}')
     # verifica se existe cupom aberto
 
     def verificaCupomAberto(self):
