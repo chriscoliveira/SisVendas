@@ -89,6 +89,24 @@ class Acesso:
         except Exception as e:
             return False
 
+    def verificaNivelUsuario(self, login, senha):
+        try:
+            itens = []
+            sql = "SELECT * FROM usuarios where login =?"
+            self.cursor.execute(sql, (login,))
+            contador = 0
+            for linha in self.cursor.fetchall():
+                contador += 1
+                itens.append(linha)
+            nivel = itens[0][5]
+            senh = str(itens[0][2])
+            if senh == senha:
+                return nivel
+            else:
+                return False
+        except Exception as e:
+            return False
+
 
 if __name__ == '__main__':
     sistema = sys.platform
@@ -100,6 +118,7 @@ if __name__ == '__main__':
         foto = 'img\\tela.jpg'
 
     # print(acesso.entraOperador('21220'))
-    print(acesso.buscaOperadorAtivo())
+    # print(acesso.buscaOperadorAtivo())
+    print(acesso.verificaNivelUsuario('21220', '123456'))
     # print(acesso.retiraOperador('21220'))
     # print(acesso.entraOperador('21220', 'Christian'))

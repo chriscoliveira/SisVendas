@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1681</width>
+    <width>2155</width>
     <height>801</height>
    </rect>
   </property>
@@ -142,7 +142,7 @@
     <property name="geometry">
      <rect>
       <x>1120</x>
-      <y>240</y>
+      <y>270</y>
       <width>521</width>
       <height>500</height>
      </rect>
@@ -154,7 +154,7 @@
      </size>
     </property>
     <property name="styleSheet">
-     <string notr="true">background-color: rgb(227, 227, 227);</string>
+     <string notr="true">background-color: rgb(195, 195, 195);</string>
     </property>
     <property name="frameShape">
      <enum>QFrame::StyledPanel</enum>
@@ -416,11 +416,11 @@
       <x>1120</x>
       <y>10</y>
       <width>521</width>
-      <height>221</height>
+      <height>251</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">background-color: rgb(85, 255, 255);</string>
+     <string notr="true">background-color: rgb(195, 195, 195);</string>
     </property>
     <property name="frameShape">
      <enum>QFrame::StyledPanel</enum>
@@ -439,7 +439,8 @@
           </font>
          </property>
          <property name="text">
-          <string>Digite o usuario</string>
+          <string>Saida de Operador
+Digite o usuario</string>
          </property>
         </widget>
        </item>
@@ -481,6 +482,11 @@
        </item>
        <item>
         <widget class="QPushButton" name="bt_saiOperador">
+         <property name="font">
+          <font>
+           <pointsize>14</pointsize>
+          </font>
+         </property>
          <property name="text">
           <string>ENVIAR</string>
          </property>
@@ -496,11 +502,11 @@
       <x>1640</x>
       <y>10</y>
       <width>521</width>
-      <height>221</height>
+      <height>251</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">background-color: rgb(206, 206, 206);</string>
+     <string notr="true">background-color: rgb(195, 195, 195);</string>
     </property>
     <property name="frameShape">
      <enum>QFrame::StyledPanel</enum>
@@ -519,7 +525,8 @@
           </font>
          </property>
          <property name="text">
-          <string>Digite o usuario</string>
+          <string>Entrada de Operador
+Digite o usuario</string>
          </property>
         </widget>
        </item>
@@ -561,6 +568,97 @@
        </item>
        <item>
         <widget class="QPushButton" name="bt_entraOperador">
+         <property name="font">
+          <font>
+           <pointsize>14</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>ENVIAR</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QFrame" name="frame_cancelaCupom">
+    <property name="geometry">
+     <rect>
+      <x>1650</x>
+      <y>270</y>
+      <width>521</width>
+      <height>251</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(195, 195, 195);</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_7">
+     <item row="0" column="0">
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QLabel" name="lbl_msg_login_5">
+         <property name="font">
+          <font>
+           <pointsize>16</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Cancelamento Cupom
+Digite o usuario</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="ed_usuario_cancelaCupom">
+         <property name="font">
+          <font>
+           <pointsize>25</pointsize>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255);</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="lbl_msg_login_6">
+         <property name="font">
+          <font>
+           <pointsize>16</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Digite a senha</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="ed_senha_cancelaCupom">
+         <property name="font">
+          <font>
+           <pointsize>25</pointsize>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255);</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="bt_cancelaCupom">
+         <property name="font">
+          <font>
+           <pointsize>14</pointsize>
+          </font>
+         </property>
          <property name="text">
           <string>ENVIAR</string>
          </property>
@@ -576,8 +674,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1681</width>
-     <height>22</height>
+     <width>2155</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuSubTotal">

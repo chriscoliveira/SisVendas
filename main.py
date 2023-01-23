@@ -1,5 +1,6 @@
 # C:\Users\Christian\AppData\Roaming\Python\Python310\Scripts\pyuic5.exe -x .\tela.ui -o .\tela.py
 
+import importlib
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5 import uic
@@ -25,9 +26,6 @@ data_e_hora_atuais = datetime.now()
 data_atual = date.today()
 data = data_e_hora_atuais.strftime('%d-%m-%Y %H:%M:%S')
 
-import importlib
-
-
 
 class Novo(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
@@ -48,9 +46,9 @@ class Novo(QMainWindow, Ui_MainWindow):
         self.actionRetornar.triggered.connect(self.retornarTela)
         self.actionCancelaItem.triggered.connect(self.cancelaItem)
         self.actionCancelaCupom.triggered.connect(self.cancelaCupon)
-        self.actionSaiOperador.triggered.connect(self.retiraOperador)
+        self.actionSaiOperador.triggered.connect(self.abreFrameLogout)
         self.actionEntraOperador.triggered.connect(self.abreFrameLogin)
-        
+
         # acoes do subtotal
         self.rb_dinheiro.toggled.connect(
             lambda: self.calculaTroco("dinheiro"))
@@ -61,22 +59,19 @@ class Novo(QMainWindow, Ui_MainWindow):
         self.ed_valorPago.textEdited.connect(lambda: self.exibeTroco())
         self.bt_finalizar.clicked.connect(lambda: self.fechaCupom(
             self.lb_total.text(), self.ed_valorPago.text(), self.lb_troco.text(), self.lbl_tipo_pagto.text()))
-        
+
+        self.txt_ean.setEnabled(False)
         self.txt_ean.returnPressed.connect(self.adicionaItem)
-        self.bt_saiOperador.clicked.connect(
-                lambda: self.tentaRetirarOperador(self.ed_usuario_logout.text(),self.ed_senha_logout.text()))
-        
-        
+
         # verifica se existe o usuario logado
         login, nome = False, False
         try:
             login, nome = acesso.buscaOperadorAtivo()
             print(f'{login=}{nome=}')
+            self.txt_ean.setEnabled(True)
         except Exception as e:
-            print(f'{login=}{nome=}')
-            print('nao ha operador atvio '+e)
+            pass
 
-        
         self.iniciaPDV(login=login, nome=nome)
 
     def iniciaPDV(self, login=False, nome=False):
@@ -90,42 +85,36 @@ class Novo(QMainWindow, Ui_MainWindow):
 
             # entrada de ean na passagem de compra
             self.txt_ean.setFocus()
-            
+
         else:
             self.lbl_rodape.setText(f'Não Existe Operador Logado')
             login, nome = False, False
             self.lbl_total.setText('')
             self.lbl_item.setText('Caixa Fechado')
-            self.txt_ean.setFocus()
-            # self.txt_ean.returnPressed.connect(
-            #     lambda: self.entraOperador(self.txt_ean.text()))
-    
+
     # 1 abre o form de login e espera que o usuario preencha os dados
     def abreFrameLogin(self):
-        self.frame_login.show()
-        self.frame_login.move(30, 54)
-        self.ed_senha_login.setText('')
-        self.ed_senha_login.setFocus()
-        self.bt_entraOperador.clicked.connect(
+        login, nome = acesso.buscaOperadorAtivo()
+        print(login, nome)
+        if not login:
+            self.frame_login.show()
+            self.frame_login.move(30, 54)
+            self.ed_usuario_login.setText('')
+            self.ed_senha_login.setText('')
+            self.ed_usuario_login.setFocus()
+            self.bt_entraOperador.clicked.connect(
                 lambda: self.entraOperador(log=self.ed_usuario_login.text(), sen=self.ed_senha_login.text()))
-        # self.ed_senha_login.returnPressed.connect(
-        # lambda: self.entraOperador(log=self.ed_usuario_login.text(), sen=self.ed_senha_login.text()))
-            
+
     # 2 recebe os dados e envia para comparação
-    def entraOperador(self,log,sen):
-        print('entraOperador',log,sen)
+    def entraOperador(self, log, sen):
+        print('entraOperador', log, sen)
         try:
             login, senha, nome = acesso.buscaOperador(log)
-            self.verificaSenhaCorreta(senhadigitada=sen, senhabanco=senha,login=log,nome=nome)
-            # self.frame_login.show()
-            # self.frame_login.move(30, 54)
-            # self.lbl_msg_login.setText(
-            #     f"Digite a senha para o usuario: {login}")
-            pass
-            
+            self.verificaSenhaCorreta(
+                senhadigitada=sen, senhabanco=senha, login=log, nome=nome)
         except:
-            self.txt_ean.setText('')
-            self.txt_ean.setFocus()
+            # self.txt_ean.setText('')
+            # self.txt_ean.setFocus()
             self.lbl_rodape.setText(
                 'Caixa Fechado, Usuario invalido! Tente novamente ')
 
@@ -136,42 +125,65 @@ class Novo(QMainWindow, Ui_MainWindow):
             self.lbl_total.setText('R$ 0.00')
             self.lbl_item.setText('Caixa Livre')
             self.frame_login.hide()
-            # with open('operador.txt', 'w') as arq:
-            #     arq.write(f'login={login},{nome}\n')
+            self.frame_logout.hide()
+            self.txt_ean.setFocus()
             retorno = acesso.entraOperador(login, nome)
             if retorno:
                 login, nome = acesso.buscaOperadorAtivo()
                 print('entrou '+login+' - '+nome)
                 print('operador entrou no sistema')
-                
+                self.txt_ean.setEnabled(True)
                 self.iniciaPDV(login, nome)
-
             else:
                 print('erro ao entrar o operador')
             self.txt_ean.setText('')
-            self.txt_ean.setFocus()
         else:
             self.lbl_item.setText('Caixa Fechado - Senha Inválida')
             self.frame_login.hide()
+            self.frame_logout.hide()
             self.txt_ean.setText('')
             self.txt_ean.setFocus()
 
+    # 1 abre o frame de logout
+    def abreFrameLogout(self):
+        # verifica se tem operador logado
+        login, nome = acesso.buscaOperadorAtivo()
+        print(login, nome)
+        if login:
+            retorno = operacoes.listar_tudo(tabela='venda_tmp')
+            if retorno:
+                self.frame_logout.hide()
+                self.frame_login.hide()
+            else:
+                self.frame_logout.show()
+                self.frame_logout.move(30, 54)
+                self.ed_usuario_logout.setText('')
+                self.ed_senha_logout.setText('')
+                self.ed_usuario_logout.setFocus()
+                self.bt_saiOperador.clicked.connect(
+                    lambda: self.tentaRetirarOperador(self.ed_usuario_logout.text(), self.ed_senha_logout.text()))
     # da a saida do operador no caixa
+
     def retiraOperador(self):
+        self.frame_login.hide()
         self.frame_logout.show()
         self.frame_logout.move(30, 54)
         retorno = operacoes.listar_tudo(tabela='venda_tmp')
+        print(retorno)
+        self.bt_saiOperador.clicked.connect(
+            lambda: self.tentaRetirarOperador(self.ed_usuario_logout.text(), self.ed_senha_logout.text()))
         if retorno:
             self.frame_logout.hide()
+            self.frame_login.hide()
         else:
             # self.lbl_msg_login.setText(
             #     f"Digite o usuario para fazer o fechamento do caixa")
             self.ed_senha_login.setText('')
             self.ed_usuario_login.setText('')
             self.ed_usuario_login.setFocus()
-            
-    def tentaRetirarOperador(self, login,senha):
-        print(login,senha)
+
+    def tentaRetirarOperador(self, login, senha):
+        print(login, senha)
         blogin, bsenha, bnome = acesso.buscaOperador(login)
         if str(blogin) == str(login) and str(bsenha) == str(senha):
             print(f'{blogin=} {login=} {bsenha} {senha}')
@@ -183,6 +195,8 @@ class Novo(QMainWindow, Ui_MainWindow):
                 self.lbl_rodape.setText('Não existe Operador Logado')
                 self.txt_ean.setFocus()
                 self.frame_login.hide()
+                self.frame_logout.hide()
+                self.txt_ean.setEnabled(False)
         else:
             print(f'R={blogin=} {login=} {bsenha} {senha}')
     # verifica se existe cupom aberto
@@ -215,6 +229,8 @@ class Novo(QMainWindow, Ui_MainWindow):
 
         # self.lbl_item.setText('Cupom Aberto')
         self.frame_subtotal.hide()
+        self.frame_logout.hide()
+        self.frame_login.hide()
         # self.frame_login.show()
         self.txt_ean.setEnabled(True)
         self.txt_ean.setFocus()
@@ -350,22 +366,57 @@ class Novo(QMainWindow, Ui_MainWindow):
 
     # faz o cancelamento do ultimo cupom finalizado
     def cancelaCupon(self):
-        valores = operacoes.verificaUltimoCupom()
-        if valores[1] == 'SIM':
-            ret = QMessageBox.question(
-                self, 'ATENÇÃO!!!', f"Tem certeza que deseja cupom o item:\nCOO = {valores[0]}, Total do cupom = {valores[4]}", QMessageBox.Yes | QMessageBox.Cancel)
+        retorno = operacoes.listar_tudo(tabela='venda_tmp')
+        print(retorno)
+        if not retorno:
+            valores = operacoes.verificaUltimoCupom()
+            print(valores)
+            if valores[1] == 'SIM':
+                ret = QMessageBox.question(
+                    self, 'ATENÇÃO!!!', f"Tem certeza que deseja cupom o item:\nCOO = {valores[0]}, Total do cupom = {valores[4]}", QMessageBox.Yes | QMessageBox.Cancel)
 
-            if ret == QMessageBox.Yes:
-                retorno = operacoes.cancelaCupom(valores[0])
-                if retorno:
+                if ret == QMessageBox.Yes:
+                    self.autorizacaoCancelamento(valores[0])
+
+            else:
+                QMessageBox.warning(
+                    self, 'ATENÇÃO!!!', f"Impossivel, o ultimo cupom ja esta cancelado!")
+
+    def autorizacaoCancelamento(self, cupom):
+        self.frame_cancelaCupom.show()
+        self.frame_cancelaCupom.move(30, 54)
+        self.txt_ean.setEnabled(False)
+        self.ed_senha_cancelaCupom.setText('')
+        self.ed_usuario_cancelaCupom.setText('')
+        self.ed_usuario_cancelaCupom.setFocus()
+        self.bt_cancelaCupom.clicked.connect(lambda: self.tentaCancelaCupom(
+            self.ed_usuario_cancelaCupom.text(), self.ed_senha_cancelaCupom.text(), cupom))
+
+    def tentaCancelaCupom(self, login, senha, cupom):
+        retorno = False
+        nivel = False
+        nivel = acesso.verificaNivelUsuario(login, senha)
+        print(nivel)
+        if nivel == 'GERENTE':
+            retorno, status = operacoes.cancelaCupom(cupom)
+            print(retorno)
+            if retorno:
+                if status == 'SIM':
                     QMessageBox.information(
                         self, 'ATENÇÃO!!!', f"Cupom Cancelado!")
-                else:
-                    QMessageBox.warning(self, 'ATENÇÃO!!!',
-                                        f"Erro ao cancelar")
+                    self.frame_cancelaCupom.hide()
+                    self.txt_ean.setEnabled(True)
+                    self.txt_ean.setText('')
+                    self.txt_ean.setFocus()
+            else:
+                QMessageBox.warning(self, 'ATENÇÃO!!!',
+                                    f"Erro ao cancelar")
+                self.frame_cancelaCupom.hide()
+
         else:
-            QMessageBox.warning(
-                self, 'ATENÇÃO!!!', f"Impossivel, o ultimo cupom ja esta cancelado!")
+            self.frame_cancelaCupom.hide()
+            self.txt_ean.setEnabled(True)
+            self.txt_ean.setFocus()
 
 
 qt = QApplication(sys.argv)

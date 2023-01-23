@@ -136,14 +136,22 @@ class Operacoes:
         return self.cursor.execute(sql).fetchall()[0]
 
     def cancelaCupom(self, coo):
+        sql_busca = 'select * from vendas where coo=?'
+        self.cursor.execute(
+            sql_busca, (coo,))
+        cancelado = ''
+        for linha in self.cursor.fetchall():
+            print(linha[1])
+            cancelado = linha[1]
+
         sql = "UPDATE vendas SET ativo='CANCELADO' WHERE coo=?"
         self.cursor.execute(sql, (coo,))
         self.conn.commit()
         afetado = self.cursor.rowcount
         if afetado > 0:
-            return True
+            return True, cancelado
         else:
-            return False
+            return False, False
 
 
 if __name__ == "__main__":
