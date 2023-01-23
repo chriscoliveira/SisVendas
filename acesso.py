@@ -62,8 +62,8 @@ class Acesso:
                 if saida == None or saida == '':
                     # print(login, nome, saida, sep=':')
                     return login, nome
-            else:
-                return False, False
+                else:
+                    return False, False
         except Exception as e:
             print('buscaOperadorAtivo = '+str(e))
             return False, False

@@ -142,7 +142,7 @@
     <property name="geometry">
      <rect>
       <x>1120</x>
-      <y>170</y>
+      <y>240</y>
       <width>521</width>
       <height>500</height>
      </rect>
@@ -410,17 +410,17 @@
      </item>
     </layout>
    </widget>
-   <widget class="QFrame" name="frame_login">
+   <widget class="QFrame" name="frame_logout">
     <property name="geometry">
      <rect>
       <x>1120</x>
       <y>10</y>
       <width>521</width>
-      <height>151</height>
+      <height>221</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">background-color: rgb(206, 206, 206);</string>
+     <string notr="true">background-color: rgb(85, 255, 255);</string>
     </property>
     <property name="frameShape">
      <enum>QFrame::StyledPanel</enum>
@@ -439,7 +439,111 @@
           </font>
          </property>
          <property name="text">
-          <string>TextLabel</string>
+          <string>Digite o usuario</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="ed_usuario_logout">
+         <property name="font">
+          <font>
+           <pointsize>25</pointsize>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255);</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="lbl_msg_login_2">
+         <property name="font">
+          <font>
+           <pointsize>16</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Digite a senha</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="ed_senha_logout">
+         <property name="font">
+          <font>
+           <pointsize>25</pointsize>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255);</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="bt_saiOperador">
+         <property name="text">
+          <string>ENVIAR</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QFrame" name="frame_login">
+    <property name="geometry">
+     <rect>
+      <x>1640</x>
+      <y>10</y>
+      <width>521</width>
+      <height>221</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(206, 206, 206);</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_6">
+     <item row="0" column="0">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QLabel" name="lbl_msg_login_3">
+         <property name="font">
+          <font>
+           <pointsize>16</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Digite o usuario</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="ed_usuario_login">
+         <property name="font">
+          <font>
+           <pointsize>25</pointsize>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255);</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="lbl_msg_login_4">
+         <property name="font">
+          <font>
+           <pointsize>16</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Digite a senha</string>
          </property>
         </widget>
        </item>
@@ -449,6 +553,16 @@
           <font>
            <pointsize>25</pointsize>
           </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255);</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="bt_entraOperador">
+         <property name="text">
+          <string>ENVIAR</string>
          </property>
         </widget>
        </item>
@@ -463,7 +577,7 @@
      <x>0</x>
      <y>0</y>
      <width>1681</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuSubTotal">
@@ -479,7 +593,8 @@
     <property name="title">
      <string>Caixa</string>
     </property>
-    <addaction name="actionFecha_Caixa"/>
+    <addaction name="actionEntraOperador"/>
+    <addaction name="actionSaiOperador"/>
     <addaction name="actionAbre_Caixa"/>
    </widget>
    <addaction name="menuSubTotal"/>
@@ -522,9 +637,14 @@
     <string>Redução Z</string>
    </property>
   </action>
-  <action name="actionFecha_Caixa">
+  <action name="actionSaiOperador">
    <property name="text">
-    <string>Fecha Caixa</string>
+    <string>Sai Operador</string>
+   </property>
+  </action>
+  <action name="actionEntraOperador">
+   <property name="text">
+    <string>Entra Operador</string>
    </property>
   </action>
  </widget>
