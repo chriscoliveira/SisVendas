@@ -32,6 +32,19 @@
     <layout class="QGridLayout" name="gridLayout_2">
      <item row="0" column="0">
       <layout class="QGridLayout" name="gridLayout">
+       <item row="4" column="1" colspan="3">
+        <widget class="QLabel" name="lbl_rodape">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>TextLabel</string>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="3" rowspan="2">
         <widget class="QListWidget" name="lst_itens">
          <property name="maximumSize">
@@ -44,19 +57,6 @@
           <font>
            <pointsize>15</pointsize>
           </font>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1" colspan="3">
-        <widget class="QLabel" name="lbl_rodape">
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>TextLabel</string>
          </property>
         </widget>
        </item>
@@ -76,19 +76,6 @@
          </property>
          <property name="text">
           <string>Item</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLabel" name="label">
-         <property name="maximumSize">
-          <size>
-           <width>600</width>
-           <height>500</height>
-          </size>
-         </property>
-         <property name="text">
-          <string/>
          </property>
         </widget>
        </item>
@@ -127,6 +114,38 @@
          <property name="font">
           <font>
            <pointsize>30</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="label">
+         <property name="maximumSize">
+          <size>
+           <width>600</width>
+           <height>500</height>
+          </size>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1" colspan="3">
+        <widget class="QLabel" name="lbl_mensagem">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
           </font>
          </property>
          <property name="text">
@@ -585,7 +604,7 @@ Digite o usuario</string>
    <widget class="QFrame" name="frame_cancelaCupom">
     <property name="geometry">
      <rect>
-      <x>1650</x>
+      <x>1640</x>
       <y>270</y>
       <width>521</width>
       <height>251</height>
@@ -675,7 +694,7 @@ Digite o usuario</string>
      <x>0</x>
      <y>0</y>
      <width>2155</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuSubTotal">

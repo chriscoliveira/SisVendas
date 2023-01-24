@@ -35,6 +35,9 @@ class Operacoes:
 
     # cadastra a venda na tabela vendas
     def cadastrarVenda(self, data, itens, total_compra, forma_pagamento, pago, troco):
+        # total_compra ="{:.2f}".format(total_compra)
+        # pago ="{:.2f}".format(pago)
+        # troco ="{:.2f}".format(troco)
         try:
             sql = "INSERT INTO vendas (data, itens,total_compra,forma_pagamento,valor_pago,troco) VALUES (?,?,?,?,?,?)"
             self.cursor.execute(
@@ -153,7 +156,49 @@ class Operacoes:
         else:
             return False, False
 
+    def criaCupom(self,coo):
+        sql_busca = 'select * from vendas where coo=?'
+        self.cursor.execute(
+            sql_busca, (coo,))
+        
+        for linha in self.cursor.fetchall():
+            coo = linha[0]
+            ativo =  linha[1]
+            data = linha[2]
+            itens  = eval(linha[3])
+            total = linha[4]
+            forma = linha[5]
+            pago = linha[6]
+            troco = linha[7]
+            
+        with open('cupom.txt','w') as e:
+            # cabeçalho           
+            e.write(f'''\n            SISVENDA 2023
+ENDERECO DO LOCAL, NUMERO, BAIRRO, CIDADE
+CEP 12300-000
+CNPJ 00.000.000/0000-00
+-----------------------------------------
+            EXTRATO No. {coo}
+        CUPOM SEM VALOR FISCAL
+-----------------------------------------\n''')
+            
+            # itens
+            
+            for i in itens:
+                total = float(i[3] / i[0])
+                valor = float(i[3])
+                e.write(f'{i[1]} {i[2]}\n        {i[0]} X {"{:.2f}".format(total)} = R${"{:.2f}".format(valor)}\n')
+            
+            e.write(f'''TOTAL R${total}
+FORMA PAGTO {forma} R${pago}
+TROCO R${troco}
 
+DATA {data}
+
+-----------------------------------------
+              VOLTE SEMPRE\n\n\n\n\n\n\n\n''')
+            os.system(f'cat cupom.txt > /dev/ttyACM0')
+        
 if __name__ == "__main__":
     sistema = sys.platform
     if sistema == 'linux':
@@ -180,5 +225,6 @@ if __name__ == "__main__":
     # retorno = operacoes.remove_item_a_cancelar('789')
     # retorno = operacoes.cadastrarVenda(
     #     '20-01-2023', 'aaaaaa', '50', 'dinheiro', '25')
-    retorno = operacoes.verificaUltimoCupom()
+    # retorno = operacoes.verificaUltimoCupom()
+    retorno = operacoes.criaCupom('1')
     print(retorno)

@@ -67,7 +67,7 @@ class Novo(QMainWindow, Ui_MainWindow):
         login, nome = False, False
         try:
             login, nome = acesso.buscaOperadorAtivo()
-            print(f'{login=}{nome=}')
+            
             self.txt_ean.setEnabled(True)
         except Exception as e:
             pass
@@ -90,12 +90,12 @@ class Novo(QMainWindow, Ui_MainWindow):
             self.lbl_rodape.setText(f'Não Existe Operador Logado')
             login, nome = False, False
             self.lbl_total.setText('')
+            self.txt_ean.setEnabled(False)
             self.lbl_item.setText('Caixa Fechado')
 
     # 1 abre o form de login e espera que o usuario preencha os dados
     def abreFrameLogin(self):
         login, nome = acesso.buscaOperadorAtivo()
-        print(login, nome)
         if not login:
             self.frame_login.show()
             self.frame_login.move(30, 54)
@@ -107,16 +107,14 @@ class Novo(QMainWindow, Ui_MainWindow):
 
     # 2 recebe os dados e envia para comparação
     def entraOperador(self, log, sen):
-        print('entraOperador', log, sen)
         try:
             login, senha, nome = acesso.buscaOperador(log)
             self.verificaSenhaCorreta(
                 senhadigitada=sen, senhabanco=senha, login=log, nome=nome)
         except:
-            # self.txt_ean.setText('')
-            # self.txt_ean.setFocus()
-            self.lbl_rodape.setText(
-                'Caixa Fechado, Usuario invalido! Tente novamente ')
+            self.txt_ean.setText('')
+            self.lbl_mensagem.setText('Usuario invalido! Tente novamente')
+            self.lbl_rodape.setText('')
 
     # 3 compara e libera o uso
     def verificaSenhaCorreta(self, senhadigitada, senhabanco, login, nome):
@@ -130,25 +128,24 @@ class Novo(QMainWindow, Ui_MainWindow):
             retorno = acesso.entraOperador(login, nome)
             if retorno:
                 login, nome = acesso.buscaOperadorAtivo()
-                print('entrou '+login+' - '+nome)
-                print('operador entrou no sistema')
                 self.txt_ean.setEnabled(True)
-                self.iniciaPDV(login, nome)
+                self.txt_ean.setFocus()
             else:
-                print('erro ao entrar o operador')
+                self.lbl_mensagem.setText('Erro ao entrar o operador')
             self.txt_ean.setText('')
         else:
-            self.lbl_item.setText('Caixa Fechado - Senha Inválida')
+            self.lbl_item.setText('Caixa Fechado')
+            self.lbl_mensagem.setText('Senha Inválida')
             self.frame_login.hide()
             self.frame_logout.hide()
             self.txt_ean.setText('')
-            self.txt_ean.setFocus()
+            # self.txt_ean.setFocus()
 
     # 1 abre o frame de logout
     def abreFrameLogout(self):
         # verifica se tem operador logado
         login, nome = acesso.buscaOperadorAtivo()
-        print(login, nome)
+        
         if login:
             retorno = operacoes.listar_tudo(tabela='venda_tmp')
             if retorno:
@@ -169,7 +166,6 @@ class Novo(QMainWindow, Ui_MainWindow):
         self.frame_logout.show()
         self.frame_logout.move(30, 54)
         retorno = operacoes.listar_tudo(tabela='venda_tmp')
-        print(retorno)
         self.bt_saiOperador.clicked.connect(
             lambda: self.tentaRetirarOperador(self.ed_usuario_logout.text(), self.ed_senha_logout.text()))
         if retorno:
@@ -183,22 +179,25 @@ class Novo(QMainWindow, Ui_MainWindow):
             self.ed_usuario_login.setFocus()
 
     def tentaRetirarOperador(self, login, senha):
-        print(login, senha)
-        blogin, bsenha, bnome = acesso.buscaOperador(login)
-        if str(blogin) == str(login) and str(bsenha) == str(senha):
-            print(f'{blogin=} {login=} {bsenha} {senha}')
-            retorno = acesso.retiraOperador(login)
-            print(retorno)
-            if retorno:
-                self.lbl_total.setText('')
-                self.lbl_item.setText('Caixa Fechado')
-                self.lbl_rodape.setText('Não existe Operador Logado')
-                self.txt_ean.setFocus()
-                self.frame_login.hide()
-                self.frame_logout.hide()
-                self.txt_ean.setEnabled(False)
-        else:
-            print(f'R={blogin=} {login=} {bsenha} {senha}')
+        try:
+            blogin, bsenha, bnome = acesso.buscaOperador(login)
+            if str(blogin) == str(login) and str(bsenha) == str(senha):
+                retorno = acesso.retiraOperador(login)
+                if retorno:
+                    self.lbl_total.setText('')
+                    self.lbl_item.setText('Caixa Fechado')
+                    self.lbl_mensagem.setText('Não existe Operador Logado')
+                    self.frame_login.hide()
+                    self.frame_logout.hide()
+                    self.txt_ean.setEnabled(False)
+            else:
+                print('a')
+        except:
+            self.frame_login.hide()
+            self.frame_logout.hide()
+            self.txt_ean.setEnabled(True)
+            self.txt_ean.setFocus()
+            self.lbl_mensagem.setText('Erro ao retirar o Operador')
     # verifica se existe cupom aberto
 
     def verificaCupomAberto(self):
@@ -214,6 +213,7 @@ class Novo(QMainWindow, Ui_MainWindow):
 
             total = "{:.2f}".format(total)
             self.lbl_total.setText(f'R$ {total}')
+            self.lbl_mensagem.setText('Cupom aberto recuperado')
 
     # retorna a tela inicial
     def retornarTela(self):
@@ -227,11 +227,18 @@ class Novo(QMainWindow, Ui_MainWindow):
         self.rb_dinheiro.setCheckable(True)
         self.rb_pix.setCheckable(True)
 
-        # self.lbl_item.setText('Cupom Aberto')
         self.frame_subtotal.hide()
         self.frame_logout.hide()
         self.frame_login.hide()
-        # self.frame_login.show()
+        self.frame_cancelaCupom.hide()
+        
+        self.ed_senha_cancelaCupom.setText('')
+        self.ed_senha_login.setText('')
+        self.ed_senha_logout.setText('')
+        self.ed_usuario_cancelaCupom.setText('')
+        self.ed_usuario_login.setText('')
+        self.ed_usuario_logout.setText('')
+        
         self.txt_ean.setEnabled(True)
         self.txt_ean.setFocus()
 
@@ -262,8 +269,6 @@ class Novo(QMainWindow, Ui_MainWindow):
             self.bt_finalizar.setEnabled(True)
             self.lbl_tipo_pagto.setText(str(tipo).upper())
             troco = self.exibeTroco()
-            # if troco>0:
-            #     print(troco,type(troco))
             if tipo == 'debito' or tipo == 'credito' or tipo == 'pix':
                 self.ed_valorPago.setEnabled(False)
             elif tipo == 'dinheiro':
@@ -277,9 +282,6 @@ class Novo(QMainWindow, Ui_MainWindow):
             pago = float(self.ed_valorPago.text().replace(
                 'R$ ', '').replace(',', '.'))
             troco = float(pago)-float(total)
-            # troco = "{:.2f}".format(troco)
-            # self.ed_valorPago.setText(f'R$ {pago}')
-            # print(troco)
             if troco >= 0:
                 self.lb_troco.setText(f'R$ {"{:.2f}".format(troco)}')
                 self.bt_finalizar.setEnabled(True)
@@ -288,26 +290,25 @@ class Novo(QMainWindow, Ui_MainWindow):
                 self.bt_finalizar.setEnabled(False)
             return troco
         except Exception as e:
-            print(e)
+            pass
 
     # adiciona item 'ativo' apos digitado na cupom
     def adicionaItem(self):
-        ean = self.txt_ean.text().replace('x', 'X').split('X')
+        self.lbl_mensagem.setText('')
+        ean = self.txt_ean.text().replace('x', 'X').replace('*','X').split('X')
         if len(ean) > 1:
             qtd, ean = ean
         else:
             qtd, ean = 1, ean[0]
+        if qtd=='':
+            qtd=1
 
         if str(ean).lower() == 'cf':  # cancela cupom
             self.txt_ean.setText('')
-            print('cancela cupom')
         elif str(ean).lower() == 'if':  # cancela item
             self.txt_ean.setText('')
-            print('cancela item')
         else:
             retorno = operacoes.buscarProduto(ean)
-            print(f'{retorno=}')
-
             if retorno[0] == 1:
                 self.lbl_item.setText(
                     f' {qtd}x {retorno[2]} R$ {retorno[5]}')
@@ -330,10 +331,12 @@ class Novo(QMainWindow, Ui_MainWindow):
     # finaliza o cupom grava no bando e libera uma proxima compra
     def fechaCupom(self, total, pago, troco, forma):
         itens = operacoes.agrupaItensTmp()
-        print(f'{total=} {pago=} {troco=} {forma=} {itens=} {data=}')
+        total = str(total).replace('R$ ','')
+        pago = str(pago).replace('R$ ','')
+        troco = str(troco).replace('R$ ','')
+        
         retorno = operacoes.cadastrarVenda(
             data, str(itens), total, forma, pago, troco)
-        print(retorno)
         if retorno:
             operacoes.limpaTemp()
             self.lst_itens.clear()
@@ -342,8 +345,9 @@ class Novo(QMainWindow, Ui_MainWindow):
             self.lbl_item.setText('Caixa Livre')
             self.lbl_total.setText('R$ 0.00')
             self.frame_subtotal.hide()
+            self.lbl_mensagem.setText('Compra Finalizada!')
         else:
-            print('nao excluiu os temps')
+            self.lbl_mensagem.setText('nao excluiu os temps')
 
     # remove algum item da lista da compra
     def cancelaItem(self):
@@ -351,33 +355,33 @@ class Novo(QMainWindow, Ui_MainWindow):
             linhaSelecionada = self.lst_itens.currentItem().text()
             linhaSelecionada = linhaSelecionada.split('\t')
             ean = linhaSelecionada[0]
-            produto = linhaSelecionada[1]
+            produto = str(linhaSelecionada[1]).strip()
 
             ret = QMessageBox.question(
                 self, 'ATENÇÃO!!!', f"Tem certeza que deseja cancelar o item:\n{ean} {produto} ", QMessageBox.Yes | QMessageBox.Cancel)
 
             if ret == QMessageBox.Yes:
                 retorno = operacoes.remove_item_a_cancelar(ean)
-                print(retorno)
                 if retorno:
                     self.verificaCupomAberto()
+                self.lbl_mensagem.setText(f'Item {ean}-{produto} foi cancelado com sucesso!')
         except Exception as e:
             pass
 
     # faz o cancelamento do ultimo cupom finalizado
     def cancelaCupon(self):
+        self.lbl_mensagem.setText('')
         retorno = operacoes.listar_tudo(tabela='venda_tmp')
-        print(retorno)
         if not retorno:
             valores = operacoes.verificaUltimoCupom()
-            print(valores)
             if valores[1] == 'SIM':
                 ret = QMessageBox.question(
                     self, 'ATENÇÃO!!!', f"Tem certeza que deseja cupom o item:\nCOO = {valores[0]}, Total do cupom = {valores[4]}", QMessageBox.Yes | QMessageBox.Cancel)
 
                 if ret == QMessageBox.Yes:
                     self.autorizacaoCancelamento(valores[0])
-
+                else:
+                    self.lbl_mensagem.setText('Usuario ou senha invalido!')
             else:
                 QMessageBox.warning(
                     self, 'ATENÇÃO!!!', f"Impossivel, o ultimo cupom ja esta cancelado!")
@@ -396,10 +400,8 @@ class Novo(QMainWindow, Ui_MainWindow):
         retorno = False
         nivel = False
         nivel = acesso.verificaNivelUsuario(login, senha)
-        print(nivel)
         if nivel == 'GERENTE':
             retorno, status = operacoes.cancelaCupom(cupom)
-            print(retorno)
             if retorno:
                 if status == 'SIM':
                     QMessageBox.information(
@@ -412,8 +414,10 @@ class Novo(QMainWindow, Ui_MainWindow):
                 QMessageBox.warning(self, 'ATENÇÃO!!!',
                                     f"Erro ao cancelar")
                 self.frame_cancelaCupom.hide()
-
+                self.txt_ean.setEnabled(True)
+                self.txt_ean.setFocus()
         else:
+            self.lbl_mensagem.setText('Usuario ou senha invalido!')
             self.frame_cancelaCupom.hide()
             self.txt_ean.setEnabled(True)
             self.txt_ean.setFocus()
