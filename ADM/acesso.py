@@ -18,11 +18,11 @@ data = data_e_hora_atuais.strftime('%d-%m-%Y %H:%M:%S')
 
 sistema = sys.platform
 if sistema == 'linux':
-    operacoes = Operacoes('DB/dbase.db')
-    foto = 'img/tela.jpg'
+    operacoes = Operacoes('../DB/dbase.db')
+    foto = '../img/tela.jpg'
 else:
-    operacoes = Operacoes('DB\\dbase.db')
-    foto = 'img\\tela.jpg'
+    operacoes = Operacoes('..\\DB\\dbase.db')
+    foto = '..\\img\\tela.jpg'
 
 
 class Acesso:

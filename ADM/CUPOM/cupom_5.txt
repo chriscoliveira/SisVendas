@@ -1,0 +1,26 @@
+
+            SISVENDA 2023
+ENDERECO DO LOCAL, NUMERO, BAIRRO, CIDADE
+CEP 12300-000
+CNPJ 00.000.000/0000-00
+-----------------------------------------
+            EXTRATO No. 5
+        CUPOM SEM VALOR FISCAL
+-----------------------------------------
+789 HOTDOG
+        1 X 7.50 = R$7.50
+7891234 ACUCAR
+        5 X 4.50 = R$22.50
+-----------------------------------------
+
+TOTAL R$30.00
+FORMA PAGTO DINHEIRO R$50.00
+TROCO R$20.00
+
+DATA 25-01-2023 17:55:00
+
+-----------------------------------------
+             VOLTE SEMPRE
+
+
+

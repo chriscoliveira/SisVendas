@@ -4,6 +4,12 @@ import os
 import re
 import sys
 
+sistema = sys.platform
+if sistema == 'linux':
+    nome_cupom = 'CUPOM/cupom_'
+else:
+    nome_cupom = 'CUPOM\\cupom_'
+
 
 class Operacoes:
 
@@ -156,49 +162,50 @@ class Operacoes:
         else:
             return False, False
 
-    def criaCupom(self,coo):
+    def criaCupom(self, coo):
         sql_busca = 'select * from vendas where coo=?'
         self.cursor.execute(
             sql_busca, (coo,))
-        
+
         for linha in self.cursor.fetchall():
+            print(linha)
             coo = linha[0]
-            ativo =  linha[1]
+            ativo = linha[1]
             data = linha[2]
-            itens  = eval(linha[3])
+            itens = eval(linha[3])
             total = linha[4]
             forma = linha[5]
             pago = linha[6]
             troco = linha[7]
-            
-        with open('cupom.txt','w') as e:
-            # cabeçalho           
-            e.write(f'''\n            SISVENDA 2023
-ENDERECO DO LOCAL, NUMERO, BAIRRO, CIDADE
-CEP 12300-000
-CNPJ 00.000.000/0000-00
------------------------------------------
-            EXTRATO No. {coo}
-        CUPOM SEM VALOR FISCAL
------------------------------------------\n''')
-            
-            # itens
-            
-            for i in itens:
-                total = float(i[3] / i[0])
-                valor = float(i[3])
-                e.write(f'{i[1]} {i[2]}\n        {i[0]} X {"{:.2f}".format(total)} = R${"{:.2f}".format(valor)}\n')
-            
-            e.write(f'''TOTAL R${total}
-FORMA PAGTO {forma} R${pago}
-TROCO R${troco}
+        with open(f'CONFIG\\cupom1.txt', 'r') as inicioCupom:
+            inicioCupom = inicioCupom.readlines()
 
-DATA {data}
+            with open(f'CONFIG\\cupom2.txt', 'r') as fimCupom:
+                fimCupom = fimCupom.readlines()
 
------------------------------------------
-              VOLTE SEMPRE\n\n\n\n\n\n\n\n''')
-            os.system(f'cat cupom.txt > /dev/ttyACM0')
-        
+                with open(f'{nome_cupom}{coo}.txt', 'w') as e:
+
+                    # escreve o inicio do cupom
+                    for inicio in inicioCupom:
+                        e.write(inicio.replace('{coo}', str(coo)))
+
+                    # itens
+                    for i in itens:
+                        tot = float(i[3] / i[0])
+                        valor = float(i[3])
+                        # escreve os itens da compra
+                        e.write(
+                            f'{i[1]} {i[2]}\n        {i[0]} X {"{:.2f}".format(tot)} = R${"{:.2f}".format(valor)}\n')
+
+                    # escreve o fim do cupom
+                    for fim in fimCupom:
+                        e.write(fim.replace('{total}', str(total)).replace('{forma}', str(forma)).replace(
+                            '{pago}', str(pago)).replace('{troco}', str(troco)).replace('{data}', str(data)))
+
+                    # os.system(f'cat cupom.txt > /dev/ttyACM0')
+        return f'{nome_cupom}{coo}.txt'
+
+
 if __name__ == "__main__":
     sistema = sys.platform
     if sistema == 'linux':
@@ -226,5 +233,5 @@ if __name__ == "__main__":
     # retorno = operacoes.cadastrarVenda(
     #     '20-01-2023', 'aaaaaa', '50', 'dinheiro', '25')
     # retorno = operacoes.verificaUltimoCupom()
-    retorno = operacoes.criaCupom('1')
+    retorno = operacoes.criaCupom('2')
     print(retorno)

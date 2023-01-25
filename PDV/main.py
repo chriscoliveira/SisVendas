@@ -14,13 +14,13 @@ from datetime import *
 
 sistema = sys.platform
 if sistema == 'linux':
-    operacoes = Operacoes('DB/dbase.db')
-    acesso = Acesso('DB/dbase.db')
-    foto = 'img/tela.jpg'
+    operacoes = Operacoes('../DB/dbase.db')
+    acesso = Acesso('../DB/dbase.db')
+    foto = '../img/tela.jpg'
 else:
-    operacoes = Operacoes('DB\\dbase.db')
-    foto = 'img\\tela.jpg'
-    acesso = Acesso('DB\\dbase.db')
+    operacoes = Operacoes('..\\DB\\dbase.db')
+    foto = '..\\img\\tela.jpg'
+    acesso = Acesso('..\\DB\\dbase.db')
 
 data_e_hora_atuais = datetime.now()
 data_atual = date.today()
@@ -67,7 +67,7 @@ class Novo(QMainWindow, Ui_MainWindow):
         login, nome = False, False
         try:
             login, nome = acesso.buscaOperadorAtivo()
-            
+
             self.txt_ean.setEnabled(True)
         except Exception as e:
             pass
@@ -145,7 +145,7 @@ class Novo(QMainWindow, Ui_MainWindow):
     def abreFrameLogout(self):
         # verifica se tem operador logado
         login, nome = acesso.buscaOperadorAtivo()
-        
+
         if login:
             retorno = operacoes.listar_tudo(tabela='venda_tmp')
             if retorno:
@@ -231,14 +231,14 @@ class Novo(QMainWindow, Ui_MainWindow):
         self.frame_logout.hide()
         self.frame_login.hide()
         self.frame_cancelaCupom.hide()
-        
+
         self.ed_senha_cancelaCupom.setText('')
         self.ed_senha_login.setText('')
         self.ed_senha_logout.setText('')
         self.ed_usuario_cancelaCupom.setText('')
         self.ed_usuario_login.setText('')
         self.ed_usuario_logout.setText('')
-        
+
         self.txt_ean.setEnabled(True)
         self.txt_ean.setFocus()
 
@@ -295,13 +295,13 @@ class Novo(QMainWindow, Ui_MainWindow):
     # adiciona item 'ativo' apos digitado na cupom
     def adicionaItem(self):
         self.lbl_mensagem.setText('')
-        ean = self.txt_ean.text().replace('x', 'X').replace('*','X').split('X')
+        ean = self.txt_ean.text().replace('x', 'X').replace('*', 'X').split('X')
         if len(ean) > 1:
             qtd, ean = ean
         else:
             qtd, ean = 1, ean[0]
-        if qtd=='':
-            qtd=1
+        if qtd == '':
+            qtd = 1
 
         if str(ean).lower() == 'cf':  # cancela cupom
             self.txt_ean.setText('')
@@ -331,10 +331,10 @@ class Novo(QMainWindow, Ui_MainWindow):
     # finaliza o cupom grava no bando e libera uma proxima compra
     def fechaCupom(self, total, pago, troco, forma):
         itens = operacoes.agrupaItensTmp()
-        total = str(total).replace('R$ ','')
-        pago = str(pago).replace('R$ ','')
-        troco = str(troco).replace('R$ ','')
-        
+        total = str(total).replace('R$ ', '')
+        pago = str(pago).replace('R$ ', '')
+        troco = str(troco).replace('R$ ', '')
+
         retorno = operacoes.cadastrarVenda(
             data, str(itens), total, forma, pago, troco)
         if retorno:
@@ -346,6 +346,8 @@ class Novo(QMainWindow, Ui_MainWindow):
             self.lbl_total.setText('R$ 0.00')
             self.frame_subtotal.hide()
             self.lbl_mensagem.setText('Compra Finalizada!')
+            valores = operacoes.verificaUltimoCupom()
+            operacoes.criaCupom(valores[0])
         else:
             self.lbl_mensagem.setText('nao excluiu os temps')
 
@@ -364,7 +366,8 @@ class Novo(QMainWindow, Ui_MainWindow):
                 retorno = operacoes.remove_item_a_cancelar(ean)
                 if retorno:
                     self.verificaCupomAberto()
-                self.lbl_mensagem.setText(f'Item {ean}-{produto} foi cancelado com sucesso!')
+                self.lbl_mensagem.setText(
+                    f'Item {ean}-{produto} foi cancelado com sucesso!')
         except Exception as e:
             pass
 
