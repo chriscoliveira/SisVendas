@@ -19,7 +19,7 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>531</width>
+      <width>611</width>
       <height>600</height>
      </rect>
     </property>
@@ -186,8 +186,8 @@
    <widget class="QFrame" name="frame_logout">
     <property name="geometry">
      <rect>
-      <x>1120</x>
-      <y>10</y>
+      <x>1440</x>
+      <y>20</y>
       <width>521</width>
       <height>251</height>
      </rect>
@@ -272,11 +272,23 @@ Digite o usuario</string>
    <widget class="QFrame" name="frame_modulo_produtos">
     <property name="geometry">
      <rect>
-      <x>550</x>
+      <x>630</x>
       <y>10</y>
-      <width>671</width>
-      <height>611</height>
+      <width>800</width>
+      <height>600</height>
      </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>800</width>
+      <height>600</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>800</width>
+      <height>600</height>
+     </size>
     </property>
     <property name="frameShape">
      <enum>QFrame::StyledPanel</enum>
@@ -428,14 +440,14 @@ Digite o usuario</string>
        <item row="6" column="3">
         <widget class="QLabel" name="label_20">
          <property name="text">
-          <string>                                                 </string>
+          <string/>
          </property>
         </widget>
        </item>
        <item row="6" column="0">
         <widget class="QLabel" name="label_19">
          <property name="text">
-          <string>                                                 </string>
+          <string/>
          </property>
         </widget>
        </item>
@@ -460,7 +472,7 @@ Digite o usuario</string>
      <x>0</x>
      <y>0</y>
      <width>2155</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuSubTotal">

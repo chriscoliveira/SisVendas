@@ -38,6 +38,8 @@ class Novo(QMainWindow, Ui_MainWindow):
         self.frame_logout.hide()
 
         self.actionProdutos.triggered.connect(lambda: self.abreFrameProdutos())
+        self.actionUsuario.triggered.connect(lambda: self.abreFrameUsuarios())
+
         # duplo clique na lista cancela o item
         # self.lst_itens.itemDoubleClicked.connect(
         #     lambda: self.cancelaItem())
@@ -86,39 +88,19 @@ class Novo(QMainWindow, Ui_MainWindow):
             self.frame_logout.hide()
             self.txt_ean.setText('')
 
-    # retorna a tela inicial
-    def retornarTela(self):
-        self.rb_debito.setCheckable(False)
-        self.rb_credito.setCheckable(False)
-        self.rb_dinheiro.setCheckable(False)
-        self.rb_pix.setCheckable(False)
-
-        self.rb_debito.setCheckable(True)
-        self.rb_credito.setCheckable(True)
-        self.rb_dinheiro.setCheckable(True)
-        self.rb_pix.setCheckable(True)
-
-        self.frame_subtotal.hide()
-        self.frame_logout.hide()
-        self.frame_login.hide()
-        self.frame_cancelaCupom.hide()
-
-        self.ed_senha_cancelaCupom.setText('')
-        self.ed_senha_login.setText('')
-        self.ed_senha_logout.setText('')
-        self.ed_usuario_cancelaCupom.setText('')
-        self.ed_usuario_login.setText('')
-        self.ed_usuario_logout.setText('')
-
-        self.txt_ean.setEnabled(True)
-        self.txt_ean.setFocus()
-
     # 1 produtos
     def abreFrameProdutos(self):
         self.frame_modulo_produtos.show()
         self.frame_modulo_produtos.move(50, 50)
+
         self.bt_cadastro_produto.setText('Cadastrar')
         # self.bt_cadastro_produto.clicked.connect(lambda: )
+        self.ed_ean.setText('')
+        self.ed_produto.setText('')
+        self.ed_qtd.setText('')
+        self.ed_valor_custo.setText('')
+        self.ed_valor_venda.setText('')
+        self.bt_cadastro_produto.setText('Cadastrar')
 
         self.retornaProdutos()
 
@@ -142,9 +124,11 @@ class Novo(QMainWindow, Ui_MainWindow):
             self.ed_qtd.setText('')
             self.ed_valor_custo.setText('')
             self.ed_valor_venda.setText('')
-        else:
-            QMessageBox.warning(
-                self, 'Aviso', f'Erro ao cadastrar o Produto\nCODIGO EAN JA EM USO')
+            self.bt_cadastro_produto.setText('Cadastrar')
+            self.retornaProdutos()
+        # else:
+        #     QMessageBox.warning(
+        #         self, 'Aviso', f'Erro ao cadastrar o Produto\nCODIGO EAN JA EM USO')
 
     # retorna todos os produtos
     def retornaProdutos(self):
@@ -152,16 +136,23 @@ class Novo(QMainWindow, Ui_MainWindow):
         retorno = operacoes.listar_tudo(tabela='produtos')
         if retorno:
             for i in retorno:
-                if i[1] == '0':
+                print(i[1])
+                if i[1] == 1:
                     ativo = 'SIM'
                 else:
                     ativo = 'NAO'
                 self.lst_produtos.addItem(
-                    f'{i[2]}\t{i[3]}\tEstoque:{i[4]}\tCusto: R${i[5]}\tVenda: R${i[6]}')
+                    f'{i[2]}\t{i[3]}\tEstoque:{i[4]}\tCusto: R${i[5]}\tVenda: R${i[6]}\t Ativo:{ativo}')
 
     def editaProdutos(self):
-        ean, produto, estoque, custo, venda = str(
+        ean, produto, estoque, custo, venda, ativo = str(
             self.lst_produtos.currentItem().text()).split('\t')
+        if ativo.split(':')[1] == 'SIM':
+            self.cb_ativo_produto.setCurrentText('SIM')
+            print('sim')
+        else:
+            print('nao')
+            self.cb_ativo_produto.setCurrentText('NAO')
         self.ed_ean.setText(ean)
         self.ed_produto.setText(produto)
         self.ed_qtd.setText(str(estoque).split(':')[1])
@@ -170,6 +161,77 @@ class Novo(QMainWindow, Ui_MainWindow):
         self.ed_valor_venda.setText(
             str(venda).replace(' R$', '').split(':')[1])
         self.bt_cadastro_produto.setText('ATUALIZAR')
+
+    # 1 usuarios
+    def abreFrameUsuarios(self):
+        self.frame_modulo_login.show()
+        self.frame_modulo_login.move(50, 50)
+
+        self.bt_cadastro_usuario.setText('Cadastrar')
+        # self.bt_cadastro_produto.clicked.connect(lambda: )
+        self.ed_login.setText('')
+        self.ed_senha.setText('')
+        self.ed_nome.setText('')
+        self.ed_cpf.setText('')
+
+        self.bt_cadastro_produto.setText('Cadastrar')
+
+        self.retornaUsuarios()
+        self.cb_ativo.addItems(['SIM', 'NAO'])
+        self.cb_funcao.addItems(['Operador', 'Gerente'])
+        self.bt_cadastro_usuario.clicked.connect(
+            lambda: self.cadastroUsuarios())
+
+        # duplo clique na lista cancela o item
+        self.lst_usuarios.itemDoubleClicked.connect(
+            lambda: self.editaUsuarios())
+
+    # 2 produtos
+    def cadastroUsuarios(self):
+        retorno = operacoes.cadastrarUsuario(self.cb_ativo.currentText(), self.ed_login.text(
+        ), self.ed_senha.text(), self.ed_nome.text(), self.ed_cpf.text(), self.cb_funcao.currentText(), self.bt_cadastro_usuario.text())
+        if retorno:
+            QMessageBox.information(
+                self, 'Aviso', f'Cadastro feito com sucesso')
+            self.ed_login.setText('')
+            self.ed_senha.setText('')
+            self.ed_nome.setText('')
+            self.ed_cpf.setText('')
+            self.bt_cadastro_produto.setText('Cadastrar')
+            self.retornaUsuarios()
+        # else:
+        #     QMessageBox.warning(
+        #         self, 'Aviso', f'Erro ao cadastrar o Produto\nCODIGO EAN JA EM USO')
+
+    # retorna todos os produtos
+    def retornaUsuarios(self):
+        self.lst_usuarios.clear()
+        retorno = operacoes.listar_tudoUsuario(tabela='usuarios')
+        if retorno:
+            for i in retorno:
+
+                if i[0] == 1:
+                    ativo = 'SIM'
+                else:
+                    ativo = 'NAO'
+                if i[1] != None:
+                    self.lst_usuarios.addItem(
+                        f'{i[1]}\t{i[3]}\t{i[4]}\t{i[5]}\t Ativo:{ativo}')
+
+    def editaUsuarios(self):
+        login, nome, cpf, funcao, ativo = str(
+            self.lst_usuarios.currentItem().text()).split('\t')
+        if ativo.split(':')[1] == 'SIM':
+            self.cb_ativo_produto.setCurrentText('SIM')
+            print('sim')
+        else:
+            print('nao')
+            self.cb_ativo_produto.setCurrentText('NAO')
+        self.ed_login.setText(login)
+        self.ed_nome.setText(nome)
+        self.ed_cpf.setText(cpf)
+        self.cb_funcao.setCurrentText(funcao)
+        self.bt_cadastro_usuario.setText('ATUALIZAR')
 
 
 qt = QApplication(sys.argv)
