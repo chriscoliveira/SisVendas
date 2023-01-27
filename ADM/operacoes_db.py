@@ -215,6 +215,6 @@ if __name__ == "__main__":
     # retorno = operacoes.cadastrarVenda(
     #     '20-01-2023', 'aaaaaa', '50', 'dinheiro', '25')
     # retorno = operacoes.verificaUltimoCupom()
-    # retorno = operacoes.criaCupom('2')
-    retorno = operacoes.buscarUsuario('1980')
+    retorno = operacoes.criaCupom('7')
+    # retorno = operacoes.buscarUsuario('1980')
     print(retorno)

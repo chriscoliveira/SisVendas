@@ -7,8 +7,10 @@ import sys
 sistema = sys.platform
 if sistema == 'linux':
     nome_cupom = 'CUPOM/cupom_'
+    porta_com = '/dev/ttyACM0'
 else:
     nome_cupom = 'CUPOM\\cupom_'
+    porta_com = '/dev/COM1'
 
 
 class Operacoes:
@@ -177,10 +179,10 @@ class Operacoes:
             forma = linha[5]
             pago = linha[6]
             troco = linha[7]
-        with open(f'CONFIG\\cupom1.txt', 'r') as inicioCupom:
+        with open(f'CONFIG/cupom1.txt', 'r') as inicioCupom:
             inicioCupom = inicioCupom.readlines()
 
-            with open(f'CONFIG\\cupom2.txt', 'r') as fimCupom:
+            with open(f'CONFIG/cupom2.txt', 'r') as fimCupom:
                 fimCupom = fimCupom.readlines()
 
                 with open(f'{nome_cupom}{coo}.txt', 'w') as e:
@@ -203,16 +205,24 @@ class Operacoes:
                             '{pago}', str(pago)).replace('{troco}', str(troco)).replace('{data}', str(data)))
 
                     # os.system(f'cat cupom.txt > /dev/ttyACM0')
+        import serial
+
+        ser = serial.Serial(porta_com, 9600)
+        with open(f'{nome_cupom}{coo}.txt', 'r') as f:
+            text = f.read()
+
+        ser.write(text.encode())
+
         return f'{nome_cupom}{coo}.txt'
 
 
 if __name__ == "__main__":
     sistema = sys.platform
     if sistema == 'linux':
-        operacoes = Operacoes('DB/dbase.db')
+        operacoes = Operacoes('../DB/dbase.db')
         foto = 'img/tela.jpg'
     else:
-        operacoes = Operacoes('DB\\dbase.db')
+        operacoes = Operacoes('..\\DB\\dbase.db')
         foto = 'img\\tela.jpg'
 
     # retorno = operacoes.inserir(
@@ -233,5 +243,11 @@ if __name__ == "__main__":
     # retorno = operacoes.cadastrarVenda(
     #     '20-01-2023', 'aaaaaa', '50', 'dinheiro', '25')
     # retorno = operacoes.verificaUltimoCupom()
-    retorno = operacoes.criaCupom('2')
+    retorno = operacoes.criaCupom('7')
     print(retorno)
+    # import serial
+
+    # ser = serial.Serial('/dev/ttyACM0', 9600)
+    # with open(f'CUPOM/cupom_7.txt', 'r') as f:
+    #     text = f.read()
+    # ser.write(text.encode())
