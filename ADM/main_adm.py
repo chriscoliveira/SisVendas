@@ -32,14 +32,21 @@ class Novo(QMainWindow, Ui_MainWindow):
         super().__init__(parent)
         super().setupUi(self)
 
-        self.setFixedSize(1200, 800)
+        self.moduloAtivo = 'login'
+        self.isMaximized()
+        # self.resize(self.sizeHint().width,self.size().height() + content.sizeHint().height());
+        # self.gridLayout_4.setAlignment()
         self.frame_modulo_login.hide()
         self.frame_modulo_produtos.hide()
-        self.frame_logout.hide()
+        self.frame_logout.show()
+        self.frame_cupom.hide()
 
         self.actionProdutos.triggered.connect(lambda: self.abreFrameProdutos())
         self.actionUsuario.triggered.connect(lambda: self.abreFrameUsuarios())
-
+        self.actionCabecalho_Cupom.triggered.connect(
+            lambda: self.abreFrameCupom('topo'))
+        self.actionRodape_Cupom.triggered.connect(
+            lambda: self.abreFrameCupom('rodape'))
         # duplo clique na lista cancela o item
         # self.lst_itens.itemDoubleClicked.connect(
         #     lambda: self.cancelaItem())
@@ -90,27 +97,31 @@ class Novo(QMainWindow, Ui_MainWindow):
 
     # 1 produtos
     def abreFrameProdutos(self):
-        self.frame_modulo_produtos.show()
-        self.frame_modulo_produtos.move(50, 50)
+        if not self.moduloAtivo == 'produtos':
+            self.moduloAtivo = 'produtos'
+            self.frame_modulo_produtos.show()
+            self.frame_modulo_produtos.move(50, 50)
+            self.frame_modulo_login.hide()
+            self.frame_cupom.hide()
 
-        self.bt_cadastro_produto.setText('Cadastrar')
-        # self.bt_cadastro_produto.clicked.connect(lambda: )
-        self.ed_ean.setText('')
-        self.ed_produto.setText('')
-        self.ed_qtd.setText('')
-        self.ed_valor_custo.setText('')
-        self.ed_valor_venda.setText('')
-        self.bt_cadastro_produto.setText('Cadastrar')
+            self.bt_cadastro_produto.setText('Cadastrar')
+            # self.bt_cadastro_produto.clicked.connect(lambda: )
+            self.ed_ean.setText('')
+            self.ed_produto.setText('')
+            self.ed_qtd.setText('')
+            self.ed_valor_custo.setText('')
+            self.ed_valor_venda.setText('')
+            self.bt_cadastro_produto.setText('Cadastrar')
 
-        self.retornaProdutos()
+            self.retornaProdutos()
 
-        self.cb_ativo_produto.addItems(['SIM', 'NAO'])
-        self.bt_cadastro_produto.clicked.connect(
-            lambda: self.cadastroProdutos())
+            self.cb_ativo_produto.addItems(['SIM', 'NAO'])
+            self.bt_cadastro_produto.clicked.connect(
+                lambda: self.cadastroProdutos())
 
-        # duplo clique na lista cancela o item
-        self.lst_produtos.itemDoubleClicked.connect(
-            lambda: self.editaProdutos())
+            # duplo clique na lista cancela o item
+            self.lst_produtos.itemDoubleClicked.connect(
+                lambda: self.editaProdutos())
 
     # 2 produtos
     def cadastroProdutos(self):
@@ -142,7 +153,7 @@ class Novo(QMainWindow, Ui_MainWindow):
                 else:
                     ativo = 'NAO'
                 self.lst_produtos.addItem(
-                    f'{i[2]}\t{i[3]}\tEstoque:{i[4]}\tCusto: R${i[5]}\tVenda: R${i[6]}\t Ativo:{ativo}')
+                    f'{i[2]: <13}\t{i[3]: <50}\tEstoque:{i[4]: <5}\tCusto: R${i[5]: <5}\tVenda: R${i[6]: <10}\tAtivo:{ativo}')
 
     def editaProdutos(self):
         ean, produto, estoque, custo, venda, ativo = str(
@@ -153,38 +164,43 @@ class Novo(QMainWindow, Ui_MainWindow):
         else:
             print('nao')
             self.cb_ativo_produto.setCurrentText('NAO')
-        self.ed_ean.setText(ean)
-        self.ed_produto.setText(produto)
-        self.ed_qtd.setText(str(estoque).split(':')[1])
+        self.ed_ean.setText(ean.strip())
+        self.ed_produto.setText(produto.strip())
+        self.ed_qtd.setText(str(estoque.strip()).split(':')[1])
         self.ed_valor_custo.setText(
-            str(custo).replace(' R$', '').split(':')[1])
+            str(custo.strip()).replace(' R$', '').split(':')[1])
         self.ed_valor_venda.setText(
-            str(venda).replace(' R$', '').split(':')[1])
+            str(venda.strip()).replace(' R$', '').split(':')[1])
         self.bt_cadastro_produto.setText('ATUALIZAR')
 
     # 1 usuarios
     def abreFrameUsuarios(self):
-        self.frame_modulo_login.show()
-        self.frame_modulo_login.move(50, 50)
+        if not self.moduloAtivo == 'usuarios':
+            self.moduloAtivo = 'usuarios'
+            self.frame_modulo_login.show()
+            self.frame_modulo_login.move(50, 50)
+            self.frame_modulo_produtos.hide()
+            self.frame_logout.hide()
+            self.frame_cupom.hide()
 
-        self.bt_cadastro_usuario.setText('Cadastrar')
-        # self.bt_cadastro_produto.clicked.connect(lambda: )
-        self.ed_login.setText('')
-        self.ed_senha.setText('')
-        self.ed_nome.setText('')
-        self.ed_cpf.setText('')
+            self.bt_cadastro_usuario.setText('Cadastrar')
+            # self.bt_cadastro_produto.clicked.connect(lambda: )
+            self.ed_login.setText('')
+            self.ed_senha.setText('')
+            self.ed_nome.setText('')
+            self.ed_cpf.setText('')
 
-        self.bt_cadastro_produto.setText('Cadastrar')
+            self.bt_cadastro_produto.setText('Cadastrar')
 
-        self.retornaUsuarios()
-        self.cb_ativo.addItems(['SIM', 'NAO'])
-        self.cb_funcao.addItems(['Operador', 'Gerente'])
-        self.bt_cadastro_usuario.clicked.connect(
-            lambda: self.cadastroUsuarios())
+            self.retornaUsuarios()
+            self.cb_ativo.addItems(['SIM', 'NAO'])
+            self.cb_funcao.addItems(['Operador', 'Gerente'])
+            self.bt_cadastro_usuario.clicked.connect(
+                lambda: self.cadastroUsuarios())
 
-        # duplo clique na lista cancela o item
-        self.lst_usuarios.itemDoubleClicked.connect(
-            lambda: self.editaUsuarios())
+            # duplo clique na lista cancela o item
+            self.lst_usuarios.itemDoubleClicked.connect(
+                lambda: self.editaUsuarios())
 
     # 2 produtos
     def cadastroUsuarios(self):
@@ -216,7 +232,7 @@ class Novo(QMainWindow, Ui_MainWindow):
                     ativo = 'NAO'
                 if i[1] != None:
                     self.lst_usuarios.addItem(
-                        f'{i[1]}\t{i[3]}\t{i[4]}\t{i[5]}\t Ativo:{ativo}')
+                        f'{i[1]: <6}\t{i[3]: <20}\t{i[4]: <10}\t{i[5]: <10}\t Ativo:{ativo}')
 
     def editaUsuarios(self):
         login, nome, cpf, funcao, ativo = str(
@@ -227,11 +243,32 @@ class Novo(QMainWindow, Ui_MainWindow):
         else:
             print('nao')
             self.cb_ativo_produto.setCurrentText('NAO')
-        self.ed_login.setText(login)
-        self.ed_nome.setText(nome)
-        self.ed_cpf.setText(cpf)
-        self.cb_funcao.setCurrentText(funcao)
+        self.ed_login.setText(login.strip())
+        self.ed_nome.setText(nome.strip())
+        self.ed_cpf.setText(cpf.strip())
+        self.cb_funcao.setCurrentText(funcao.strip())
         self.bt_cadastro_usuario.setText('ATUALIZAR')
+
+    def abreFrameCupom(self, tipo):
+        if not self.moduloAtivo == 'cupom':
+            self.moduloAtivo = 'cupom'
+            self.frame_cupom.show()
+            self.frame_logout.hide()
+            self.frame_modulo_login.hide()
+            self.frame_modulo_produtos.hide()
+
+        if tipo == 'topo':
+            self.lbl_titulo_cupom.setText('Editar o cabeçalho do Cupom')
+            with open('..//PDV//CONFIG//cupom1.txt', 'r') as r:
+                r = r.read()
+
+                self.ed_cupom.setPlainText(r)
+        else:
+            self.lbl_titulo_cupom.setText('Editar o rodapé do Cupom')
+            with open('..//PDV//CONFIG//cupom2.txt', 'r') as r:
+                r = r.read()
+
+                self.ed_cupom.setPlainText(r)
 
 
 qt = QApplication(sys.argv)
