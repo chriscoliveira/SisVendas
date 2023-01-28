@@ -4,7 +4,8 @@ import importlib
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5 import uic
-from PyQt5.QtWidgets import QMainWindow, QApplication
+from PyQt5.QtWidgets import QMainWindow, QApplication, QLineEdit, QWidget, QFormLayout
+from PyQt5.QtGui import QIntValidator, QDoubleValidator, QFont
 import os
 from tela import *
 import sys
@@ -32,10 +33,11 @@ class Novo(QMainWindow, Ui_MainWindow):
         super().__init__(parent)
         super().setupUi(self)
 
-        self.setFixedSize(1200, 800)
+        # self.setFixedSize(1200, 800)
         self.frame_subtotal.hide()
         self.frame_login.hide()
         self.frame_logout.hide()
+        self.frame_cancelaCupom.hide()
 
         # duplo clique na lista cancela o item
         self.lst_itens.itemDoubleClicked.connect(
@@ -101,6 +103,7 @@ class Novo(QMainWindow, Ui_MainWindow):
             self.frame_login.move(30, 54)
             self.ed_usuario_login.setText('')
             self.ed_senha_login.setText('')
+            self.ed_senha_login.setEchoMode(QLineEdit.Password)
             self.ed_usuario_login.setFocus()
             self.bt_entraOperador.clicked.connect(
                 lambda: self.entraOperador(log=self.ed_usuario_login.text(), sen=self.ed_senha_login.text()))
@@ -121,6 +124,7 @@ class Novo(QMainWindow, Ui_MainWindow):
         if str(senhabanco) == str(senhadigitada):
             self.lbl_rodape.setText(f'LOGIN: {login} - OPERADOR: {nome}')
             self.lbl_total.setText('R$ 0.00')
+            self.lbl_mensagem.setText('')
             self.lbl_item.setText('Caixa Livre')
             self.frame_login.hide()
             self.frame_logout.hide()
@@ -145,7 +149,7 @@ class Novo(QMainWindow, Ui_MainWindow):
     def abreFrameLogout(self):
         # verifica se tem operador logado
         login, nome = acesso.buscaOperadorAtivo()
-
+        self.ed_senha_logout.setEchoMode(QLineEdit.Password)
         if login:
             retorno = operacoes.listar_tudo(tabela='venda_tmp')
             if retorno:
@@ -159,8 +163,8 @@ class Novo(QMainWindow, Ui_MainWindow):
                 self.ed_usuario_logout.setFocus()
                 self.bt_saiOperador.clicked.connect(
                     lambda: self.tentaRetirarOperador(self.ed_usuario_logout.text(), self.ed_senha_logout.text()))
-    # da a saida do operador no caixa
 
+    # da a saida do operador no caixa
     def retiraOperador(self):
         self.frame_login.hide()
         self.frame_logout.show()
@@ -182,14 +186,17 @@ class Novo(QMainWindow, Ui_MainWindow):
         try:
             blogin, bsenha, bnome = acesso.buscaOperador(login)
             if str(blogin) == str(login) and str(bsenha) == str(senha):
-                retorno = acesso.retiraOperador(login)
+                retorno, qtd_linhas = acesso.retiraOperador(login)
+                print(qtd_linhas)
                 if retorno:
-                    self.lbl_total.setText('')
-                    self.lbl_item.setText('Caixa Fechado')
-                    self.lbl_mensagem.setText('Não existe Operador Logado')
-                    self.frame_login.hide()
-                    self.frame_logout.hide()
-                    self.txt_ean.setEnabled(False)
+                    if qtd_linhas > 0:
+                        self.lbl_total.setText('')
+                        self.lbl_item.setText('Caixa Fechado')
+                        self.lbl_mensagem.setText('Não existe Operador Logado')
+                        self.lbl_rodape.setText('')
+                        self.frame_login.hide()
+                        self.frame_logout.hide()
+                        self.txt_ean.setEnabled(False)
             else:
                 print('a')
         except:
@@ -198,8 +205,8 @@ class Novo(QMainWindow, Ui_MainWindow):
             self.txt_ean.setEnabled(True)
             self.txt_ean.setFocus()
             self.lbl_mensagem.setText('Erro ao retirar o Operador')
-    # verifica se existe cupom aberto
 
+    # verifica se existe cupom aberto
     def verificaCupomAberto(self):
         self.lst_itens.clear()
         total = float(0)
@@ -383,6 +390,7 @@ class Novo(QMainWindow, Ui_MainWindow):
 
                 if ret == QMessageBox.Yes:
                     self.autorizacaoCancelamento(valores[0])
+
                 else:
                     self.lbl_mensagem.setText('Usuario ou senha invalido!')
             else:
@@ -396,6 +404,7 @@ class Novo(QMainWindow, Ui_MainWindow):
         self.ed_senha_cancelaCupom.setText('')
         self.ed_usuario_cancelaCupom.setText('')
         self.ed_usuario_cancelaCupom.setFocus()
+        self.ed_senha_cancelaCupom.setEchoMode(QLineEdit.Password)
         self.bt_cancelaCupom.clicked.connect(lambda: self.tentaCancelaCupom(
             self.ed_usuario_cancelaCupom.text(), self.ed_senha_cancelaCupom.text(), cupom))
 
@@ -409,6 +418,7 @@ class Novo(QMainWindow, Ui_MainWindow):
                 if status == 'SIM':
                     QMessageBox.information(
                         self, 'ATENÇÃO!!!', f"Cupom Cancelado!")
+                    operacoes.criaCupom(cupom)
                     self.frame_cancelaCupom.hide()
                     self.txt_ean.setEnabled(True)
                     self.txt_ean.setText('')

@@ -4,20 +4,17 @@ ENDERECO DO LOCAL, NUMERO, BAIRRO, CIDADE
 CEP 12306-090
 CNPJ 01.157.555/0021-58
 -----------------------------------------
-            EXTRATO No. 5
+            EXTRATO No. 16
         CUPOM SEM VALOR FISCAL
 -----------------------------------------
-789 HOTDOG
-        1 X 7.50 = R$7.50
-7891234 ACUCAR
-        5 X 4.50 = R$22.50
+Cupom No16 foi cancelado em 28-01-2023 13:07:38
 -----------------------------------------
 
-TOTAL R$30.00
-FORMA PAGTO DINHEIRO R$50.00
-TROCO R$20.00
+TOTAL R$33.51
+FORMA PAGTO DINHEIRO R$33.51
+TROCO R$0.00
 
-DATA 25-01-2023 17:55:00
+DATA 28-01-2023 13:07:38
 
 -----------------------------------------
              VOLTE SEMPRE

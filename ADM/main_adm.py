@@ -17,9 +17,13 @@ if sistema == 'linux':
     operacoes = Operacoes('../DB/dbase.db')
     acesso = Acesso('../DB/dbase.db')
     foto = '../img/tela.jpg'
+    cupom2 = '..//PDV//CONFIG//cupom2.txt'
+    cupom1 = '..//PDV//CONFIG//cupom1.txt'
 else:
     operacoes = Operacoes('..\\DB\\dbase.db')
     foto = '..\\img\\tela.jpg'
+    cupom2 = '..\\PDV\\CONFIG\\cupom2.txt'
+    cupom1 = '..\\PDV\\CONFIG\\cupom1.txt'
     acesso = Acesso('..\\DB\\dbase.db')
 
 data_e_hora_atuais = datetime.now()
@@ -257,18 +261,30 @@ class Novo(QMainWindow, Ui_MainWindow):
             self.frame_modulo_login.hide()
             self.frame_modulo_produtos.hide()
 
+            self.bt_salvarCupom.clicked.connect(lambda: self.alteraCupom())
+
         if tipo == 'topo':
             self.lbl_titulo_cupom.setText('Editar o cabeçalho do Cupom')
-            with open('..//PDV//CONFIG//cupom1.txt', 'r') as r:
+            with open(cupom1, 'r') as r:
                 r = r.read()
 
                 self.ed_cupom.setPlainText(r)
         else:
             self.lbl_titulo_cupom.setText('Editar o rodapé do Cupom')
-            with open('..//PDV//CONFIG//cupom2.txt', 'r') as r:
+            with open(cupom2, 'r') as r:
                 r = r.read()
 
                 self.ed_cupom.setPlainText(r)
+
+    def alteraCupom(self):
+        tipo = self.lbl_titulo_cupom.text()
+        texto = self.ed_cupom.toPlainText()
+        if 'cabeçalho' in tipo:
+            arquivo = cupom1
+        else:
+            arquivo = cupom2
+        with open(arquivo, 'w') as f:
+            f.write(texto)
 
 
 qt = QApplication(sys.argv)

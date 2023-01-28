@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>2432</width>
+    <width>2488</width>
     <height>869</height>
    </rect>
   </property>
@@ -484,14 +484,14 @@ Digite o usuario</string>
        <widget class="QFrame" name="frame_cupom">
         <property name="minimumSize">
          <size>
-          <width>450</width>
+          <width>420</width>
           <height>600</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>450</width>
-          <height>700</height>
+          <width>420</width>
+          <height>600</height>
          </size>
         </property>
         <property name="frameShape">
@@ -502,57 +502,8 @@ Digite o usuario</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_8">
          <item row="0" column="0">
-          <layout class="QGridLayout" name="gridLayout_7">
-           <property name="sizeConstraint">
-            <enum>QLayout::SetDefaultConstraint</enum>
-           </property>
-           <item row="1" column="0">
-            <widget class="QPlainTextEdit" name="ed_cupom">
-             <property name="minimumSize">
-              <size>
-               <width>400</width>
-               <height>500</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>400</width>
-               <height>500</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <family>Lucida Console</family>
-               <pointsize>10</pointsize>
-              </font>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QPushButton" name="pushButton">
-             <property name="minimumSize">
-              <size>
-               <width>400</width>
-               <height>50</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>400</width>
-               <height>50</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <pointsize>16</pointsize>
-              </font>
-             </property>
-             <property name="text">
-              <string>Salvar</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
+          <layout class="QVBoxLayout" name="verticalLayout_2">
+           <item>
             <widget class="QLabel" name="lbl_titulo_cupom">
              <property name="minimumSize">
               <size>
@@ -576,6 +527,52 @@ Digite o usuario</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPlainTextEdit" name="ed_cupom">
+             <property name="minimumSize">
+              <size>
+               <width>400</width>
+               <height>450</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>400</width>
+               <height>450</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <family>Lucida Console</family>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="bt_salvarCupom">
+             <property name="minimumSize">
+              <size>
+               <width>400</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>400</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>16</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>Salvar</string>
              </property>
             </widget>
            </item>
@@ -621,8 +618,8 @@ Digite o usuario</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>2432</width>
-     <height>21</height>
+     <width>2488</width>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuSubTotal">

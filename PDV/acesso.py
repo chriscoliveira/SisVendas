@@ -84,10 +84,12 @@ class Acesso:
         try:
             sql = "UPDATE usuarios_historico SET saida=? WHERE login=? and saida=''"
             self.cursor.execute(sql, (data_e_hora_atuais, login))
+            qtd_linhas = self.cursor.rowcount
             self.conn.commit()
-            return True
+            print(qtd_linhas)
+            return True, qtd_linhas
         except Exception as e:
-            return False
+            return False, False
 
     def verificaNivelUsuario(self, login, senha):
         try:
@@ -111,14 +113,14 @@ class Acesso:
 if __name__ == '__main__':
     sistema = sys.platform
     if sistema == 'linux':
-        acesso = Acesso('DB/dbase.db')
+        acesso = Acesso('../DB/dbase.db')
         foto = 'img/tela.jpg'
     else:
-        acesso = Acesso('DB\\dbase.db')
+        acesso = Acesso('..\\DB\\dbase.db')
         foto = 'img\\tela.jpg'
 
     # print(acesso.entraOperador('21220'))
     # print(acesso.buscaOperadorAtivo())
-    print(acesso.verificaNivelUsuario('21220', '123456'))
-    # print(acesso.retiraOperador('21220'))
+    # print(acesso.verificaNivelUsuario('21220', '123456'))
+    print(acesso.retiraOperador('21220'))
     # print(acesso.entraOperador('21220', 'Christian'))

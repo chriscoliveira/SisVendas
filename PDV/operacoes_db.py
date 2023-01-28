@@ -10,7 +10,7 @@ if sistema == 'linux':
     porta_com = '/dev/ttyACM0'
 else:
     nome_cupom = 'CUPOM\\cupom_'
-    porta_com = '/dev/COM1'
+    porta_com = 'COM1'
 
 
 class Operacoes:
@@ -164,7 +164,7 @@ class Operacoes:
         else:
             return False, False
 
-    def criaCupom(self, coo):
+    def criaCupom(self, coo, cancelado=False):
         sql_busca = 'select * from vendas where coo=?'
         self.cursor.execute(
             sql_busca, (coo,))
@@ -185,19 +185,21 @@ class Operacoes:
             with open(f'CONFIG/cupom2.txt', 'r') as fimCupom:
                 fimCupom = fimCupom.readlines()
 
-                with open(f'{nome_cupom}{coo}.txt', 'w') as e:
+                with open(f'{nome_cupom}.txt', 'w') as e:
 
                     # escreve o inicio do cupom
                     for inicio in inicioCupom:
                         e.write(inicio.replace('{coo}', str(coo)))
-
-                    # itens
-                    for i in itens:
-                        tot = float(i[3] / i[0])
-                        valor = float(i[3])
-                        # escreve os itens da compra
-                        e.write(
-                            f'{i[1]} {i[2]}\n        {i[0]} X {"{:.2f}".format(tot)} = R${"{:.2f}".format(valor)}\n')
+                    if ativo == 'CANCELADO':
+                        e.write(f'Cupom No{coo} foi cancelado em {data}\n')
+                    else:
+                        # itens
+                        for i in itens:
+                            tot = float(i[3] / i[0])
+                            valor = float(i[3])
+                            # escreve os itens da compra
+                            e.write(
+                                f'{i[1]} {i[2]}\n        {i[0]} X {"{:.2f}".format(tot)} = R${"{:.2f}".format(valor)}\n')
 
                     # escreve o fim do cupom
                     for fim in fimCupom:
@@ -208,12 +210,12 @@ class Operacoes:
         import serial
 
         ser = serial.Serial(porta_com, 9600)
-        with open(f'{nome_cupom}{coo}.txt', 'r') as f:
+        with open(f'{nome_cupom}.txt', 'r') as f:
             text = f.read()
 
         ser.write(text.encode())
 
-        return f'{nome_cupom}{coo}.txt'
+        return f'{nome_cupom}.txt'
 
 
 if __name__ == "__main__":
@@ -243,7 +245,7 @@ if __name__ == "__main__":
     # retorno = operacoes.cadastrarVenda(
     #     '20-01-2023', 'aaaaaa', '50', 'dinheiro', '25')
     # retorno = operacoes.verificaUltimoCupom()
-    retorno = operacoes.criaCupom('7')
+    retorno = operacoes.criaCupom('15')
     print(retorno)
     # import serial
 
