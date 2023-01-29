@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1522</width>
-    <height>989</height>
+    <height>1237</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -327,6 +327,98 @@ Digite o usuario</string>
                     </item>
                     <item>
                      <widget class="QPushButton" name="bt_saiOperador">
+                      <property name="font">
+                       <font>
+                        <pointsize>14</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>ENVIAR</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <widget class="QFrame" name="frame_reducaoz">
+                 <property name="minimumSize">
+                  <size>
+                   <width>300</width>
+                   <height>250</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>300</width>
+                   <height>250</height>
+                  </size>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">background-color: rgb(195, 195, 195);</string>
+                 </property>
+                 <property name="frameShape">
+                  <enum>QFrame::StyledPanel</enum>
+                 </property>
+                 <property name="frameShadow">
+                  <enum>QFrame::Raised</enum>
+                 </property>
+                 <layout class="QGridLayout" name="gridLayout_5">
+                  <item row="0" column="0">
+                   <layout class="QVBoxLayout" name="verticalLayout">
+                    <item>
+                     <widget class="QLabel" name="lbl_msg_login">
+                      <property name="font">
+                       <font>
+                        <pointsize>16</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Fim do dia
+Digite o usuario</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLineEdit" name="ed_usuario_z">
+                      <property name="font">
+                       <font>
+                        <pointsize>25</pointsize>
+                       </font>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true">background-color: rgb(255, 255, 255);</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLabel" name="lbl_msg_login_2">
+                      <property name="font">
+                       <font>
+                        <pointsize>16</pointsize>
+                       </font>
+                      </property>
+                      <property name="text">
+                       <string>Digite a senha</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLineEdit" name="ed_senha_z">
+                      <property name="font">
+                       <font>
+                        <pointsize>25</pointsize>
+                       </font>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true">background-color: rgb(255, 255, 255);</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="bt_z">
                       <property name="font">
                        <font>
                         <pointsize>14</pointsize>
@@ -729,7 +821,7 @@ Digite o usuario</string>
      <x>0</x>
      <y>0</y>
      <width>1522</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuSubTotal">
@@ -747,7 +839,7 @@ Digite o usuario</string>
     </property>
     <addaction name="actionEntraOperador"/>
     <addaction name="actionSaiOperador"/>
-    <addaction name="actionAbre_Caixa"/>
+    <addaction name="actionFimDia"/>
    </widget>
    <addaction name="menuSubTotal"/>
    <addaction name="menuCaixa"/>
@@ -784,9 +876,9 @@ Digite o usuario</string>
     <string>Esc</string>
    </property>
   </action>
-  <action name="actionAbre_Caixa">
+  <action name="actionFimDia">
    <property name="text">
-    <string>Redução Z</string>
+    <string>Fim do Dia</string>
    </property>
   </action>
   <action name="actionSaiOperador">

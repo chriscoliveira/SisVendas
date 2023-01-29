@@ -37,7 +37,7 @@ class Novo(QMainWindow, Ui_MainWindow):
         super().setupUi(self)
 
         self.moduloAtivo = 'login'
-        self.isMaximized()
+        self.showMaximized()
         # self.resize(self.sizeHint().width,self.size().height() + content.sizeHint().height());
         # self.gridLayout_4.setAlignment()
         self.frame_modulo_login.hide()

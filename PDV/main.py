@@ -33,17 +33,19 @@ class Novo(QMainWindow, Ui_MainWindow):
         super().__init__(parent)
         super().setupUi(self)
 
-        # self.setFixedSize(1200, 800)
+        self.showMaximized()
         self.frame_subtotal.hide()
         self.frame_login.hide()
         self.frame_logout.hide()
         self.frame_cancelaCupom.hide()
+        self.frame_reducaoz.hide()
 
         # duplo clique na lista cancela o item
         self.lst_itens.itemDoubleClicked.connect(
             lambda: self.cancelaItem())
 
         # menu de acoes
+        self.actionFimDia.triggered.connect(self.abreFrameRedZ)
         self.actionFinalizaCupom.triggered.connect(self.abreSubtotal)
         self.actionRetornar.triggered.connect(self.retornarTela)
         self.actionCancelaItem.triggered.connect(self.cancelaItem)
@@ -128,6 +130,7 @@ class Novo(QMainWindow, Ui_MainWindow):
             self.lbl_item.setText('Caixa Livre')
             self.frame_login.hide()
             self.frame_logout.hide()
+            self.frame_reducaoz.hide()
             self.txt_ean.setFocus()
             retorno = acesso.entraOperador(login, nome)
             if retorno:
@@ -141,6 +144,7 @@ class Novo(QMainWindow, Ui_MainWindow):
             self.lbl_item.setText('Caixa Fechado')
             self.lbl_mensagem.setText('Senha Inválida')
             self.frame_login.hide()
+            self.frame_reducaoz.hide()
             self.frame_logout.hide()
             self.txt_ean.setText('')
             # self.txt_ean.setFocus()
@@ -155,6 +159,7 @@ class Novo(QMainWindow, Ui_MainWindow):
             if retorno:
                 self.frame_logout.hide()
                 self.frame_login.hide()
+                self.frame_reducaoz.hide()
             else:
                 self.frame_logout.show()
                 self.frame_logout.move(30, 54)
@@ -167,6 +172,7 @@ class Novo(QMainWindow, Ui_MainWindow):
     # da a saida do operador no caixa
     def retiraOperador(self):
         self.frame_login.hide()
+        self.frame_reducaoz.hide()
         self.frame_logout.show()
         self.frame_logout.move(30, 54)
         retorno = operacoes.listar_tudo(tabela='venda_tmp')
@@ -175,6 +181,7 @@ class Novo(QMainWindow, Ui_MainWindow):
         if retorno:
             self.frame_logout.hide()
             self.frame_login.hide()
+            self.frame_reducaoz.hide()
         else:
             # self.lbl_msg_login.setText(
             #     f"Digite o usuario para fazer o fechamento do caixa")
@@ -196,11 +203,13 @@ class Novo(QMainWindow, Ui_MainWindow):
                         self.lbl_rodape.setText('')
                         self.frame_login.hide()
                         self.frame_logout.hide()
+                        self.frame_reducaoz.hide()
                         self.txt_ean.setEnabled(False)
             else:
                 print('a')
         except:
             self.frame_login.hide()
+            self.frame_reducaoz.hide()
             self.frame_logout.hide()
             self.txt_ean.setEnabled(True)
             self.txt_ean.setFocus()
@@ -238,6 +247,7 @@ class Novo(QMainWindow, Ui_MainWindow):
         self.frame_logout.hide()
         self.frame_login.hide()
         self.frame_cancelaCupom.hide()
+        self.frame_reducaoz.hide()
 
         self.ed_senha_cancelaCupom.setText('')
         self.ed_senha_login.setText('')
@@ -354,7 +364,11 @@ class Novo(QMainWindow, Ui_MainWindow):
             self.frame_subtotal.hide()
             self.lbl_mensagem.setText('Compra Finalizada!')
             valores = operacoes.verificaUltimoCupom()
-            operacoes.criaCupom(valores[0])
+
+            cupomImpresso = operacoes.criaCupom(valores[0])
+            if not cupomImpresso:
+                QMessageBox.warning(
+                    self, 'Aviso', f'Cupom Finalizado!\nImpressora nao localizada')
         else:
             self.lbl_mensagem.setText('nao excluiu os temps')
 
@@ -411,7 +425,7 @@ class Novo(QMainWindow, Ui_MainWindow):
     def tentaCancelaCupom(self, login, senha, cupom):
         retorno = False
         nivel = False
-        nivel = acesso.verificaNivelUsuario(login, senha)
+        nivel, nome = acesso.verificaNivelUsuario(login, senha)
         if nivel == 'GERENTE':
             retorno, status = operacoes.cancelaCupom(cupom)
             if retorno:
@@ -434,6 +448,45 @@ class Novo(QMainWindow, Ui_MainWindow):
             self.frame_cancelaCupom.hide()
             self.txt_ean.setEnabled(True)
             self.txt_ean.setFocus()
+
+    # 1 abre frame fim do dia
+    def abreFrameRedZ(self):
+        login, nome = acesso.buscaOperadorAtivo()
+        print(login, nome)
+        self.ed_senha_logout.setEchoMode(QLineEdit.Password)
+        if not login:
+            self.frame_reducaoz.show()
+            self.ed_usuario_z.setText('')
+            self.ed_senha_z.setText('')
+            self.ed_usuario_z.setFocus()
+            self.bt_z.clicked.connect(
+                lambda: self.geraFimDia(self.ed_usuario_z.text(), self.ed_senha_z.text()))
+
+    # 2 verfica senha
+    def geraFimDia(self, login, senha):
+        retorno = False
+        nivel = False
+        nivel, nome = acesso.verificaNivelUsuario(login, senha)
+        if nivel == 'GERENTE':
+            retorno = operacoes.criaCupom(login=nome)
+            if retorno:
+                # if status == 'SIM':
+                QMessageBox.information(
+                    self, 'ATENÇÃO!!!', f"Relatorio de Fim do dia impresso!")
+                self.lbl_mensagem.setText('')
+                self.frame_reducaoz.hide()
+                self.txt_ean.setEnabled(False)
+
+            else:
+                QMessageBox.warning(self, 'ATENÇÃO!!!',
+                                    f"Relatorio de Fim do dia impresso!\n\nErro ao Imprimir o documento")
+                self.frame_reducaoz.hide()
+                self.txt_ean.setEnabled(False)
+
+        else:
+            self.lbl_mensagem.setText('Usuario ou senha invalido!')
+            self.frame_reducaoz.hide()
+            self.txt_ean.setEnabled(False)
 
 
 qt = QApplication(sys.argv)

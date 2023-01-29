@@ -4,20 +4,21 @@ ENDERECO DO LOCAL, NUMERO, BAIRRO, CIDADE
 CEP 12306-090
 CNPJ 01.157.555/0021-58
 -----------------------------------------
-            EXTRATO No. 16
+             FIM DO DIA
         CUPOM SEM VALOR FISCAL
 -----------------------------------------
-Cupom No16 foi cancelado em 28-01-2023 13:07:38
+VENDAS EFETUADAS
+	CREDITO R$31.56
+	DEBITO R$173.40
+	DINHEIRO R$65.85
+	PIX R$280.74
+
+VENDAS CANCELADAS
+	CREDITO R$8.67
+	DINHEIRO R$201.01
+
+
+
+	CHRISTIAN
 -----------------------------------------
-
-TOTAL R$33.51
-FORMA PAGTO DINHEIRO R$33.51
-TROCO R$0.00
-
-DATA 28-01-2023 13:07:38
-
------------------------------------------
-             VOLTE SEMPRE
-SEU BOM NEGÓCIO COMEÇA AQUI
-
-
+	28-01-2023 16:30:55

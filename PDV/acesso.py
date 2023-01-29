@@ -102,12 +102,13 @@ class Acesso:
                 itens.append(linha)
             nivel = itens[0][5]
             senh = str(itens[0][2])
+            nome = str(itens[0][3])
             if senh == senha:
-                return nivel
+                return nivel, nome
             else:
-                return False
+                return False, False
         except Exception as e:
-            return False
+            return False, False
 
 
 if __name__ == '__main__':

@@ -3,6 +3,7 @@ from time import sleep
 import os
 import re
 import sys
+from datetime import date, datetime
 
 sistema = sys.platform
 if sistema == 'linux':
@@ -11,6 +12,11 @@ if sistema == 'linux':
 else:
     nome_cupom = 'CUPOM\\cupom_'
     porta_com = 'COM1'
+
+data_e_hora_atuais = datetime.now()
+data_atual = date.today()
+data = data_e_hora_atuais.strftime('%d-%m-%Y %H:%M:%S')
+dataResumida = data_e_hora_atuais.strftime('%d-%m-%Y')
 
 
 class Operacoes:
@@ -164,21 +170,41 @@ class Operacoes:
         else:
             return False, False
 
-    def criaCupom(self, coo, cancelado=False):
-        sql_busca = 'select * from vendas where coo=?'
-        self.cursor.execute(
-            sql_busca, (coo,))
+    # imprime o cupom caso tenha o coo, se nao tiver imprime a reducao do dia
+    def criaCupom(self, coo=False, login=False):
 
-        for linha in self.cursor.fetchall():
-            print(linha)
-            coo = linha[0]
-            ativo = linha[1]
-            data = linha[2]
-            itens = eval(linha[3])
-            total = linha[4]
-            forma = linha[5]
-            pago = linha[6]
-            troco = linha[7]
+        if coo:  # se for cupom de venda ou cancelamento
+            sql_busca = 'select * from vendas where coo=?'
+            self.cursor.execute(
+                sql_busca, (coo,))
+
+            for linha in self.cursor.fetchall():
+                print(linha)
+                coo = linha[0]
+                ativo = linha[1]
+                vdata = linha[2]
+                itens = eval(linha[3])
+                total = linha[4]
+                forma = linha[5]
+                pago = linha[6]
+                troco = linha[7]
+
+        else:  # se for reducao do dia
+            cupom_ativo, cupom_cancelado = [], []
+            sql_ativos = f'SELECT forma_pagamento,sum(valor_pago) from vendas where data like "{dataResumida}%" and ativo="SIM" GROUP by forma_pagamento'
+            qtd_ativo = self.cursor.rowcount
+            self.cursor.execute(sql_ativos)
+            for i in self.cursor.fetchall():
+                cupom_ativo.append(i)
+            # print(cupom_ativo)
+            sql_cancelados = f'SELECT forma_pagamento,sum(valor_pago) from vendas where data like "{dataResumida}%" and ativo="CANCELADO" GROUP by forma_pagamento'
+            qtd_cancelado = self.cursor.rowcount
+            self.cursor.execute(sql_cancelados)
+            for i in self.cursor.fetchall():
+                cupom_cancelado.append(i)
+            # print(cupom_cancelado)
+
+        # prepara o cupom
         with open(f'CONFIG/cupom1.txt', 'r') as inicioCupom:
             inicioCupom = inicioCupom.readlines()
 
@@ -189,44 +215,76 @@ class Operacoes:
 
                     # escreve o inicio do cupom
                     for inicio in inicioCupom:
-                        e.write(inicio.replace('{coo}', str(coo)))
-                    if ativo == 'CANCELADO':
-                        e.write(f'Cupom No{coo} foi cancelado em {data}\n')
-                    else:
-                        # itens
-                        for i in itens:
-                            tot = float(i[3] / i[0])
-                            valor = float(i[3])
-                            # escreve os itens da compra
+                        if coo:
+                            e.write(inicio.replace('{coo}', str(coo)))
+                        else:
+                            e.write(inicio.replace(
+                                'EXTRATO No. {coo}', ' FIM DO DIA'))
+
+                    if coo:
+                        # verifica se é cancelamento
+                        if ativo == 'CANCELADO':
                             e.write(
-                                f'{i[1]} {i[2]}\n        {i[0]} X {"{:.2f}".format(tot)} = R${"{:.2f}".format(valor)}\n')
+                                f'Cupom No{coo} foi cancelado em {vdata}\n')
+                        else:
+                            # se for venda normal
+                            for i in itens:
+                                tot = float(i[3] / i[0])
+                                valor = float(i[3])
+                                # escreve os itens da compra
+                                e.write(
+                                    f'{i[1]} {i[2]}\n        {i[0]} X {"{:.2f}".format(tot)} = R${"{:.2f}".format(valor)}\n')
+
+                    else:
+                        # gera o fim do dia
+                        txt_ativo = ''
+                        txt_ativo += 'VENDAS EFETUADAS\n'
+
+                        for i in cupom_ativo:
+                            tipo, vtotal = i[0], i[1]
+                            txt_ativo += f'\t{tipo} R${"{:.2f}".format(vtotal)}\n'
+
+                        txt_cancelado = 'VENDAS CANCELADAS\n'
+                        for i in cupom_cancelado:
+                            tipo, vtotal = i[0], i[1]
+                            txt_cancelado += f'\t{tipo} R${"{:.2f}".format(vtotal)}\n'
+
+                        e.write(txt_ativo)
+                        e.write('\n'+txt_cancelado)
 
                     # escreve o fim do cupom
-                    for fim in fimCupom:
-                        e.write(fim.replace('{total}', str(total)).replace('{forma}', str(forma)).replace(
-                            '{pago}', str(pago)).replace('{troco}', str(troco)).replace('{data}', str(data)))
+                    if coo:
+                        for fim in fimCupom:
+                            e.write(fim.replace('{total}', str(total)).replace('{forma}', str(forma)).replace(
+                                '{pago}', str(pago)).replace('{troco}', str(troco)).replace('{data}', str(vdata)))
+                    else:
+                        e.write(
+                            f'\n\n\n\t{login}\n-----------------------------------------\n\t{str(data)}')
 
-                    # os.system(f'cat cupom.txt > /dev/ttyACM0')
-        import serial
+        try:
+            import serial
 
-        ser = serial.Serial(porta_com, 9600)
-        with open(f'{nome_cupom}.txt', 'r') as f:
-            text = f.read()
+            ser = serial.Serial(porta_com, 9600)
+            with open(f'{nome_cupom}.txt', 'r') as f:
+                text = f.read()
 
-        ser.write(text.encode())
+            ser.write(text.encode())
 
-        return f'{nome_cupom}.txt'
+            return f'{nome_cupom}.txt'
+        except:
+            return False
 
 
 if __name__ == "__main__":
     sistema = sys.platform
     if sistema == 'linux':
         operacoes = Operacoes('../DB/dbase.db')
-        foto = 'img/tela.jpg'
+        # acesso = Acesso('../DB/dbase.db')
+        foto = '../img/tela.jpg'
     else:
         operacoes = Operacoes('..\\DB\\dbase.db')
-        foto = 'img\\tela.jpg'
-
+        foto = '..\\img\\tela.jpg'
+        # acesso = Acesso('..\\DB\\dbase.db')
     # retorno = operacoes.inserir(
     #     "1", "7891234", 'acucar', '10', '1,00', '4,50', '')
     # print(retorno)
@@ -245,7 +303,8 @@ if __name__ == "__main__":
     # retorno = operacoes.cadastrarVenda(
     #     '20-01-2023', 'aaaaaa', '50', 'dinheiro', '25')
     # retorno = operacoes.verificaUltimoCupom()
-    retorno = operacoes.criaCupom('15')
+    retorno = operacoes.criaCupom(login='Christian Carvalho')
+    # print(operacoes.reducaoZ())
     print(retorno)
     # import serial
 
