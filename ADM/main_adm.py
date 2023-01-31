@@ -1,4 +1,5 @@
 # C:\Users\Christian\AppData\Roaming\Python\Python310\Scripts\pyuic5.exe -x .\tela.ui -o .\tela.py
+# C:\Users\Christian\AppData\Roaming\Python\Python310\Scripts\pyinstaller.exe -F --console -w --upx-dir=D:\upx-4.0.2-win64 --distpath .\ --ico .\pdv.ico --name "SysPDV 2023" .\main.py
 
 import importlib
 from PyQt5.QtWidgets import *
@@ -151,7 +152,7 @@ class Novo(QMainWindow, Ui_MainWindow):
         retorno = operacoes.listar_tudo(tabela='produtos')
         if retorno:
             for i in retorno:
-                print(i[1])
+                # print(i[1])
                 if i[1] == 1:
                     ativo = 'SIM'
                 else:
@@ -164,9 +165,9 @@ class Novo(QMainWindow, Ui_MainWindow):
             self.lst_produtos.currentItem().text()).split('\t')
         if ativo.split(':')[1] == 'SIM':
             self.cb_ativo_produto.setCurrentText('SIM')
-            print('sim')
+            # print('sim')
         else:
-            print('nao')
+            # print('nao')
             self.cb_ativo_produto.setCurrentText('NAO')
         self.ed_ean.setText(ean.strip())
         self.ed_produto.setText(produto.strip())
@@ -208,11 +209,11 @@ class Novo(QMainWindow, Ui_MainWindow):
 
     # 2 produtos
     def cadastroUsuarios(self):
-        retorno = operacoes.cadastrarUsuario(self.cb_ativo.currentText(), self.ed_login.text(
+        retorno, msg = operacoes.cadastrarUsuario(self.cb_ativo.currentText(), self.ed_login.text(
         ), self.ed_senha.text(), self.ed_nome.text(), self.ed_cpf.text(), self.cb_funcao.currentText(), self.bt_cadastro_usuario.text())
         if retorno:
             QMessageBox.information(
-                self, 'Aviso', f'Cadastro feito com sucesso')
+                self, 'Aviso', f'Registro {msg} com sucesso')
             self.ed_login.setText('')
             self.ed_senha.setText('')
             self.ed_nome.setText('')
@@ -243,9 +244,9 @@ class Novo(QMainWindow, Ui_MainWindow):
             self.lst_usuarios.currentItem().text()).split('\t')
         if ativo.split(':')[1] == 'SIM':
             self.cb_ativo_produto.setCurrentText('SIM')
-            print('sim')
+            # print('sim')
         else:
-            print('nao')
+            # print('nao')
             self.cb_ativo_produto.setCurrentText('NAO')
         self.ed_login.setText(login.strip())
         self.ed_nome.setText(nome.strip())

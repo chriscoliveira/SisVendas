@@ -18,7 +18,7 @@ class Operacoes:
         self.cursor = self.conn.cursor()
 
     def cadastrarProduto(self, ativo, ean, produto, quantidade, valor_custo, valor_venda, ultima_compra, botao):
-        print(botao)
+        # print(botao)
         try:
             if ativo == 'SIM':
                 ativo = '1'
@@ -50,11 +50,11 @@ class Operacoes:
                     self.conn.commit()
                     return True
                 except Exception as e:
-                    print(e)
+                    # print(e)
                     return False
 
         except Exception as e:
-            print(e)
+            # print(e)
             return False
 
     def editar(self, id, ativo, ean, produto, quantidade, valor_custo, valor_venda, ultima_compra):
@@ -80,7 +80,7 @@ class Operacoes:
         return itens
 
     def buscarProduto(self, termo):
-        print(termo)
+        # print(termo)
         try:
             contador = 0
             sql = "SELECT * FROM produtos WHERE ean = ?"
@@ -104,7 +104,7 @@ class Operacoes:
             return '', '', '', '', '', '', ''
 
     def cadastrarUsuario(self, ativo, login, senha, nome, cpf, funcao, botao):
-        print(botao)
+        # print(botao)
         try:
             if ativo == 'SIM':
                 ativo = '1'
@@ -116,30 +116,30 @@ class Operacoes:
 
             rativo, rlogin, rsenha, rnome, rcpf, rfuncao = self.buscarUsuario(
                 termo=login)
-            print(botao)
+            # print(botao)
             if str(botao) == 'Cadastrar':
                 if rlogin == login or rcpf == cpf:
-                    return False
+                    return False, False
                 else:
 
                     sql = "INSERT INTO usuarios (ativo, login, senha, nome, cpf, funcao ) VALUES (?,?,?,?,?,?)"
                     self.cursor.execute(
                         sql, (ativo, login, senha, nome, cpf, funcao))
                     self.conn.commit()
-                    return True
+                    return True, 'cadastrado'
             else:
 
                 try:
-                    sql = "UPDATE usuarios SET ativo=?, login=?, senha=?, nome=?, cpf=?,funcao=? WHERE ean=?"
+                    sql = "UPDATE usuarios SET ativo=?, login=?, senha=?, nome=?, cpf=?,funcao=? WHERE login=?"
                     self.cursor.execute(
                         sql, (ativo, login, senha, nome, cpf, funcao, login))
                     self.conn.commit()
-                    return True
+                    return True, 'atualizado'
                 except Exception as e:
-                    return False
+                    return False, False
 
         except Exception as e:
-            print(e)
+            # print(e)
             return False
 
     def editarUsuario(self, id, ativo, login, senha, nome, cpf, funcao):
@@ -165,7 +165,7 @@ class Operacoes:
         return itens
 
     def buscarUsuario(self, termo):
-        print(termo)
+        # print(termo)
         try:
             contador = 0
             sql = "SELECT * FROM usuarios where login = ?"

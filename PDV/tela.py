@@ -459,16 +459,19 @@ class Ui_MainWindow(object):
         self.menuSubTotal.setTitle(_translate("MainWindow", "Cupom"))
         self.menuCaixa.setTitle(_translate("MainWindow", "Caixa"))
         self.actionCancelaItem.setText(_translate("MainWindow", "CancelaItem"))
-        self.actionCancelaItem.setShortcut(_translate("MainWindow", "Shift+C"))
+        self.actionCancelaItem.setShortcut(_translate("MainWindow", "F3"))
         self.actionFinalizaCupom.setText(_translate("MainWindow", "FinalizaCupom"))
-        self.actionFinalizaCupom.setShortcut(_translate("MainWindow", "Ctrl+F"))
+        self.actionFinalizaCupom.setShortcut(_translate("MainWindow", "F4"))
         self.actionCancelaCupom.setText(_translate("MainWindow", "CancelaCupom"))
-        self.actionCancelaCupom.setShortcut(_translate("MainWindow", "Ctrl+C"))
+        self.actionCancelaCupom.setShortcut(_translate("MainWindow", "F5"))
         self.actionRetornar.setText(_translate("MainWindow", "Retornar"))
         self.actionRetornar.setShortcut(_translate("MainWindow", "Esc"))
         self.actionFimDia.setText(_translate("MainWindow", "Fim do Dia"))
+        self.actionFimDia.setShortcut(_translate("MainWindow", "F12"))
         self.actionSaiOperador.setText(_translate("MainWindow", "Sai Operador"))
+        self.actionSaiOperador.setShortcut(_translate("MainWindow", "F2"))
         self.actionEntraOperador.setText(_translate("MainWindow", "Entra Operador"))
+        self.actionEntraOperador.setShortcut(_translate("MainWindow", "F1"))
 
 
 if __name__ == "__main__":

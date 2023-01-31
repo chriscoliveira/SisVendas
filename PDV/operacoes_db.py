@@ -53,10 +53,42 @@ class Operacoes:
         # pago ="{:.2f}".format(pago)
         # troco ="{:.2f}".format(troco)
         try:
+            # cadastra a venda
             sql = "INSERT INTO vendas (data, itens,total_compra,forma_pagamento,valor_pago,troco) VALUES (?,?,?,?,?,?)"
             self.cursor.execute(
                 sql, (data, itens, total_compra, forma_pagamento, pago, troco))
             self.conn.commit()
+
+            # baixa o estoque
+            try:
+                item = eval(itens)
+                for i in item:
+                    qtd = i[0]
+                    cod = i[1]
+                    # print(f'{qtd=} {cod=}')
+                    # recebe o estoque atual do produto
+                    sql = "SELECT * FROM produtos WHERE ean = ?"
+                    # termo = f'%{termo}%'
+                    self.cursor.execute(
+                        sql, (cod,))
+
+                    for linha in self.cursor.fetchall():
+                        quantidade = linha[4]
+                    # print(f'{quantidade=}')
+                    qtd = int(quantidade)-int(qtd)
+                    sql = "UPDATE produtos set quantidade=? where ean=?"
+                    self.cursor.execute(sql, (qtd, cod))
+                    self.conn.commit()
+
+            except Exception as e:
+                print(e)
+            #     qtd, ean, produto, preco = i.split(',')
+            #     print(qtd, ean, produto, sep='>')
+            # sql = "UPDATE produtos set quantidade=? where ean=?"
+            # self.cursor.execute(
+            #     sql, (data, itens, total_compra, forma_pagamento, pago, troco))
+            # self.conn.commit()
+
             return True
         except Exception as e:
             return False
@@ -95,7 +127,7 @@ class Operacoes:
         id = 0
         for i in itens:
             id = i[0]
-        print(id)
+        # print(id)
         retorno = self.remove_produto_selecionado('venda_tmp', id)
         return retorno
 
@@ -120,7 +152,7 @@ class Operacoes:
         return itens
 
     def buscarProduto(self, termo):
-        print(termo)
+        # print(termo)
         try:
             contador = 0
             sql = "SELECT * FROM produtos WHERE ean = ?"
@@ -158,7 +190,7 @@ class Operacoes:
             sql_busca, (coo,))
         cancelado = ''
         for linha in self.cursor.fetchall():
-            print(linha[1])
+            # print(linha[1])
             cancelado = linha[1]
 
         sql = "UPDATE vendas SET ativo='CANCELADO' WHERE coo=?"
@@ -179,7 +211,7 @@ class Operacoes:
                 sql_busca, (coo,))
 
             for linha in self.cursor.fetchall():
-                print(linha)
+                # print(linha)
                 coo = linha[0]
                 ativo = linha[1]
                 vdata = linha[2]
@@ -226,6 +258,25 @@ class Operacoes:
                         if ativo == 'CANCELADO':
                             e.write(
                                 f'Cupom No{coo} foi cancelado em {vdata}\n')
+
+                            # retorna o estoque
+                            for i in itens:
+                                qtd = i[0]
+                                cod = i[1]
+                                # print(f'{qtd=} {cod=}')
+                                # recebe o estoque atual do produto
+                                sql = "SELECT * FROM produtos WHERE ean = ?"
+                                # termo = f'%{termo}%'
+                                self.cursor.execute(
+                                    sql, (cod,))
+
+                                for linha in self.cursor.fetchall():
+                                    quantidade = linha[4]
+                                # print(f'{quantidade=}')
+                                qtd = int(quantidade)+int(qtd)
+                                sql = "UPDATE produtos set quantidade=? where ean=?"
+                                self.cursor.execute(sql, (qtd, cod))
+                                self.conn.commit()
                         else:
                             # se for venda normal
                             for i in itens:

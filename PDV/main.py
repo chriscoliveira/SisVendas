@@ -1,5 +1,5 @@
 # C:\Users\Christian\AppData\Roaming\Python\Python310\Scripts\pyuic5.exe -x .\tela.ui -o .\tela.py
-
+# C:\Users\Christian\AppData\Roaming\Python\Python310\Scripts\pyinstaller.exe -F --console -w --upx-dir=D:\upx-4.0.2-win64 --distpath .\ --ico .\pdv.ico --name "SysPDV 2023" .\main.py
 import importlib
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -33,7 +33,9 @@ class Novo(QMainWindow, Ui_MainWindow):
         super().__init__(parent)
         super().setupUi(self)
 
+        # self.setFixedSize(800, 600)
         self.showMaximized()
+
         self.frame_subtotal.hide()
         self.frame_login.hide()
         self.frame_logout.hide()
@@ -194,7 +196,7 @@ class Novo(QMainWindow, Ui_MainWindow):
             blogin, bsenha, bnome = acesso.buscaOperador(login)
             if str(blogin) == str(login) and str(bsenha) == str(senha):
                 retorno, qtd_linhas = acesso.retiraOperador(login)
-                print(qtd_linhas)
+                # print(qtd_linhas)
                 if retorno:
                     if qtd_linhas > 0:
                         self.lbl_total.setText('')
@@ -205,8 +207,6 @@ class Novo(QMainWindow, Ui_MainWindow):
                         self.frame_logout.hide()
                         self.frame_reducaoz.hide()
                         self.txt_ean.setEnabled(False)
-            else:
-                print('a')
         except:
             self.frame_login.hide()
             self.frame_reducaoz.hide()
@@ -355,6 +355,7 @@ class Novo(QMainWindow, Ui_MainWindow):
         retorno = operacoes.cadastrarVenda(
             data, str(itens), total, forma, pago, troco)
         if retorno:
+
             operacoes.limpaTemp()
             self.lst_itens.clear()
             self.txt_ean.setEnabled(True)
@@ -452,7 +453,7 @@ class Novo(QMainWindow, Ui_MainWindow):
     # 1 abre frame fim do dia
     def abreFrameRedZ(self):
         login, nome = acesso.buscaOperadorAtivo()
-        print(login, nome)
+        # print(login, nome)
         self.ed_senha_logout.setEchoMode(QLineEdit.Password)
         if not login:
             self.frame_reducaoz.show()
