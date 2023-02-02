@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>2488</width>
-    <height>869</height>
+    <width>3164</width>
+    <height>697</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -581,6 +581,170 @@ Digite o usuario</string>
         </layout>
        </widget>
       </item>
+      <item>
+       <widget class="QFrame" name="frame_vendas">
+        <property name="minimumSize">
+         <size>
+          <width>700</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_9">
+         <item row="0" column="0">
+          <layout class="QGridLayout" name="gridLayout_7">
+           <item row="0" column="2">
+            <widget class="QPushButton" name="bt_portipo">
+             <property name="maximumSize">
+              <size>
+               <width>160</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>14</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>Venda por Tipo</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QPushButton" name="bt_pordia">
+             <property name="maximumSize">
+              <size>
+               <width>160</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>14</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>Venda por Dia</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="3">
+            <widget class="QPushButton" name="bt_geraexcel">
+             <property name="maximumSize">
+              <size>
+               <width>160</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>14</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>Gerar Excel</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QPushButton" name="bt_mesames">
+             <property name="maximumSize">
+              <size>
+               <width>160</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>14</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>Venda Mês a Mês</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0" colspan="4">
+            <widget class="QLabel" name="lbl_fig">
+             <property name="minimumSize">
+              <size>
+               <width>800</width>
+               <height>600</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>800</width>
+               <height>600</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" colspan="4">
+            <widget class="QLabel" name="lbl_info">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>14</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="3">
+            <widget class="QPushButton" name="bt_gerar">
+             <property name="maximumSize">
+              <size>
+               <width>160</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>14</pointsize>
+              </font>
+             </property>
+             <property name="text">
+              <string>Processar</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0" colspan="3">
+            <widget class="QLineEdit" name="ed_periodo">
+             <property name="maximumSize">
+              <size>
+               <width>500</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>14</pointsize>
+              </font>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
      </layout>
     </item>
     <item row="0" column="0">
@@ -618,8 +782,8 @@ Digite o usuario</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>2488</width>
-     <height>22</height>
+     <width>3164</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuSubTotal">
@@ -631,6 +795,9 @@ Digite o usuario</string>
     <addaction name="separator"/>
     <addaction name="actionCabecalho_Cupom"/>
     <addaction name="actionRodape_Cupom"/>
+    <addaction name="separator"/>
+    <addaction name="separator"/>
+    <addaction name="actionRelatorio"/>
    </widget>
    <addaction name="menuSubTotal"/>
   </widget>
@@ -683,6 +850,11 @@ Digite o usuario</string>
   <action name="actionRodape_Cupom">
    <property name="text">
     <string>Rodapé Cupom</string>
+   </property>
+  </action>
+  <action name="actionRelatorio">
+   <property name="text">
+    <string>Relatorio</string>
    </property>
   </action>
  </widget>

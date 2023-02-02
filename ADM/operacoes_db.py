@@ -7,6 +7,7 @@ from datetime import datetime
 import calendar
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 
 sistema = sys.platform
 if sistema == 'linux':
@@ -192,80 +193,107 @@ class Operacoes:
         except Exception as e:
             return '', '', '', '', '', ''
 
-    def geraGraficoMes(self, dia, mes, ano):
-        test_date = datetime(ano, mes, dia)
-        ultimo_dia_mes = calendar.monthrange(
-            test_date.year, test_date.month)[1]
+    def geraGraficoMes(self, mes, ano):
+        try:
+            test_date = datetime(ano, mes, 1)
+            ultimo_dia_mes = calendar.monthrange(
+                test_date.year, test_date.month)[1]
 
-        # Executar a consulta SQL para obter as vendas diárias
-        self.cursor.execute(
-            "SELECT replace(data,'-','/'), total_compra FROM vendas where ativo = 'SIM'")
-        dados_ativo = self.cursor.fetchall()
+            # Executar a consulta SQL para obter as vendas diárias
+            self.cursor.execute(
+                "SELECT replace(data,'-','/'), total_compra FROM vendas where ativo = 'SIM'")
+            dados_ativo = self.cursor.fetchall()
 
-        self.cursor.execute(
-            "SELECT replace(data,'-','/'), total_compra FROM vendas where ativo = 'CANCELADO'")
-        dados_cancelado = self.cursor.fetchall()
+            self.cursor.execute(
+                "SELECT replace(data,'-','/'), total_compra FROM vendas where ativo = 'CANCELADO'")
+            dados_cancelado = self.cursor.fetchall()
 
-        #################### ATIVO ########################################
-        # cria um dataframe
-        df = pd.DataFrame(dados_ativo, columns=['DATA', 'VENDA'])
+            #################### ATIVO ########################################
+            # cria um dataframe
+            df = pd.DataFrame(dados_ativo, columns=['DATA', 'VENDA'])
 
-        # corrige o valor
-        df['VENDA'] = pd.to_numeric(df['VENDA'])
+            # corrige o valor
+            df['VENDA'] = pd.to_numeric(df['VENDA'])
 
-        # corrige a data
-        df['DATA'] = df['DATA'].apply(lambda x: x[:10])
-        df['DATA'] = pd.to_datetime(df['DATA'], dayfirst=True)
-        s = pd.to_datetime(df['DATA'], unit='s')   # no need to wrap in Series
-        assert str(s.dtype) == 'datetime64[ns]'   # VERY IMPORTANT!!!!
-        df.index = s
-        df = df[f'{ano}-{mes}-01':f'{ano}-{mes}-{ultimo_dia_mes}']
-        df.reset_index(drop=True, inplace=True)
+            # corrige a data
+            df['DATA'] = df['DATA'].apply(lambda x: x[:10])
+            df['DATA'] = pd.to_datetime(df['DATA'], dayfirst=True)
+            # no need to wrap in Series
+            s = pd.to_datetime(df['DATA'], unit='s')
+            assert str(s.dtype) == 'datetime64[ns]'   # VERY IMPORTANT!!!!
+            df.index = s
+            df = df[f'{ano}-{mes}-01':f'{ano}-{mes}-{ultimo_dia_mes}']
+            df.reset_index(drop=True, inplace=True)
 
-        # agrupa as datas
-        df = df.groupby('DATA').sum()
+            # agrupa as datas
+            df = df.groupby('DATA').sum()
 
-        # cria uma nova coluna
-        df['DIA'] = df.index
-        df['DIA'] = df['DIA'].astype(str).apply(lambda x: x[8:])
-        resultado_ativo = df.groupby("DIA")['VENDA'].sum()
+            # cria uma nova coluna
+            df['DIA'] = df.index
+            df['DIA'] = df['DIA'].astype(str).apply(lambda x: x[8:])
+            resultado_ativo = df.groupby("DIA")['VENDA'].sum()
 
-        #################### CANCELADO ########################################
-        # cria um dataframe
-        df = pd.DataFrame(dados_cancelado, columns=['DATA', 'CANCELADO'])
+            #################### CANCELADO ########################################
+            # cria um dataframe
+            df = pd.DataFrame(dados_cancelado, columns=['DATA', 'CANCELADO'])
 
-        # corrige o valor
-        df['CANCELADO'] = pd.to_numeric(df['CANCELADO'])
+            # corrige o valor
+            df['CANCELADO'] = pd.to_numeric(df['CANCELADO'])
 
-        # corrige a data
-        df['DATA'] = df['DATA'].apply(lambda x: x[:10])
-        df['DATA'] = pd.to_datetime(df['DATA'], dayfirst=True)
-        s = pd.to_datetime(df['DATA'], unit='s')   # no need to wrap in Series
-        assert str(s.dtype) == 'datetime64[ns]'   # VERY IMPORTANT!!!!
-        df.index = s
-        df = df[f'{ano}-{mes}-01':f'{ano}-{mes}-{ultimo_dia_mes}']
-        df.reset_index(drop=True, inplace=True)
+            # corrige a data
+            df['DATA'] = df['DATA'].apply(lambda x: x[:10])
+            df['DATA'] = pd.to_datetime(df['DATA'], dayfirst=True)
+            # no need to wrap in Series
+            s = pd.to_datetime(df['DATA'], unit='s')
+            assert str(s.dtype) == 'datetime64[ns]'   # VERY IMPORTANT!!!!
+            df.index = s
+            df = df[f'{ano}-{mes}-01':f'{ano}-{mes}-{ultimo_dia_mes}']
+            df.reset_index(drop=True, inplace=True)
 
-        # agrupa as datas
-        df = df.groupby('DATA').sum()
+            # agrupa as datas
+            df = df.groupby('DATA').sum()
 
-        # cria uma nova coluna
-        df['DIA'] = df.index
-        df['DIA'] = df['DIA'].astype(str).apply(lambda x: x[8:])
-        resultado_cancelado = df.groupby("DIA")['CANCELADO'].sum()
+            # cria uma nova coluna
+            df['DIA'] = df.index
+            df['DIA'] = df['DIA'].astype(str).apply(lambda x: x[8:])
+            resultado_cancelado = df.groupby("DIA")['CANCELADO'].sum()
 
-        resultado = pd.concat([resultado_ativo, resultado_cancelado], axis=1)
-        ############# GRAFICO ##################################################
+            df = pd.concat(
+                [resultado_ativo, resultado_cancelado], axis=1)
+            df['DIA'] = df.index
 
-        resultado.sort_values('DIA').plot(kind='bar')
+            ############# GRAFICO ##################################################
 
-        plt.title(f"Venda do mês {mes}/{ano}")
-        plt.xlabel("Dia")
-        plt.ylabel("Total R$")
-        # plt.show()
-        plt.savefig('grafico.jpg')
+            fig, ax = plt.subplots()
 
-        # Gerar o gráfico de linhas
+            bar_width = 0.35
+            x = np.arange(len(df['DIA']))
+            bar1 = ax.bar(x - bar_width/2,
+                          df['VENDA'], bar_width, label='VENDA')
+            bar2 = ax.bar(x + bar_width/2,
+                          df['CANCELADO'], bar_width, label='CANCELADO')
+
+            # Adicionando labels com os valores a cada coluna
+            for i, v in enumerate(df['VENDA']):
+                ax.text(i - bar_width, v, f'R$ {v}', color='black',
+                        va='bottom', fontweight='bold')
+            for i, v in enumerate(df['CANCELADO']):
+                ax.text(i, v, f'R$ {v}', color='black',
+                        va='bottom')
+
+            ax.set_xticks(x)
+            ax.set_xticklabels(df['DIA'])
+            ax.legend(loc='upper left')
+            plt.title(f"Venda do mês {mes}/{ano}")
+            plt.xlabel(f"Dia do mes {mes}")
+            plt.ylabel("Valor Total do dia")
+            plt.savefig('grafico.jpg', dpi=200)
+
+            return True
+
+        except Exception as e:
+            print(e)
+            return False
 
 
 if __name__ == "__main__":
@@ -276,3 +304,5 @@ if __name__ == "__main__":
     else:
         operacoes = Operacoes('..\\DB\\dbase.db')
         foto = 'img\\tela.jpg'
+
+    print(operacoes.geraGraficoMes(1, 2023))

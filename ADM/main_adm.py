@@ -45,7 +45,9 @@ class Novo(QMainWindow, Ui_MainWindow):
         self.frame_modulo_produtos.hide()
         self.frame_logout.show()
         self.frame_cupom.hide()
+        self.frame_vendas.hide()
 
+        self.actionRelatorio.triggered.connect(lambda: self.abreFrameVendas())
         self.actionProdutos.triggered.connect(lambda: self.abreFrameProdutos())
         self.actionUsuario.triggered.connect(lambda: self.abreFrameUsuarios())
         self.actionCabecalho_Cupom.triggered.connect(
@@ -108,6 +110,7 @@ class Novo(QMainWindow, Ui_MainWindow):
             self.frame_modulo_produtos.move(50, 50)
             self.frame_modulo_login.hide()
             self.frame_cupom.hide()
+            self.frame_vendas.hide()
 
             self.bt_cadastro_produto.setText('Cadastrar')
             # self.bt_cadastro_produto.clicked.connect(lambda: )
@@ -187,6 +190,7 @@ class Novo(QMainWindow, Ui_MainWindow):
             self.frame_modulo_produtos.hide()
             self.frame_logout.hide()
             self.frame_cupom.hide()
+            self.frame_vendas.hide()
 
             self.bt_cadastro_usuario.setText('Cadastrar')
             # self.bt_cadastro_produto.clicked.connect(lambda: )
@@ -254,6 +258,7 @@ class Novo(QMainWindow, Ui_MainWindow):
         self.cb_funcao.setCurrentText(funcao.strip())
         self.bt_cadastro_usuario.setText('ATUALIZAR')
 
+    # 1 cupom
     def abreFrameCupom(self, tipo):
         if not self.moduloAtivo == 'cupom':
             self.moduloAtivo = 'cupom'
@@ -261,6 +266,7 @@ class Novo(QMainWindow, Ui_MainWindow):
             self.frame_logout.hide()
             self.frame_modulo_login.hide()
             self.frame_modulo_produtos.hide()
+            self.frame_vendas.hide()
 
             self.bt_salvarCupom.clicked.connect(lambda: self.alteraCupom())
 
@@ -276,6 +282,7 @@ class Novo(QMainWindow, Ui_MainWindow):
                 r = r.read()
 
                 self.ed_cupom.setPlainText(r)
+    # 2 cupom
 
     def alteraCupom(self):
         tipo = self.lbl_titulo_cupom.text()
@@ -286,6 +293,51 @@ class Novo(QMainWindow, Ui_MainWindow):
             arquivo = cupom2
         with open(arquivo, 'w') as f:
             f.write(texto)
+
+    # 1 relatorio
+    def abreFrameVendas(self):
+        self.frame_cupom.hide()
+        self.frame_logout.hide()
+        self.frame_modulo_login.hide()
+        self.frame_modulo_produtos.hide()
+        self.frame_vendas.show()
+        self.bt_gerar.setVisible(False)
+        self.ed_periodo.setVisible(False)
+        self.lbl_info.setText('')
+
+        # exibe campos ocultos
+        self.bt_pordia.clicked.connect(lambda: self.exibeCamposOcultos('dia'))
+        self.bt_mesames.clicked.connect(lambda: self.exibeCamposOcultos('mes'))
+        self.bt_portipo.clicked.connect(
+            lambda: self.exibeCamposOcultos('tipo'))
+        # self.bt_geraexcel.clicked.connect(
+        #     lambda: self.exibeCamposOcultos('excel'))
+
+    def exibeCamposOcultos(self, tipo):
+        if tipo == 'dia':
+            self.lbl_info.setText(
+                'Por Dia: Digite no campo abaixo o mes/ano Ex: 1/2023')
+            self.bt_gerar.clicked.connect(lambda: self.vendasProcessaImagem(int(
+                self.ed_periodo.text().split('/')[0]), int(self.ed_periodo.text().split('/')[1])))
+        elif tipo == 'mes':
+            self.lbl_info.setText(
+                'Por Mes: Digite no campo abaixo o ano desejado Ex: 2023')
+        elif tipo == 'tipo':
+            self.lbl_info.setText(
+                'Por Tipo: Digite no campo abaixo o mes/ano Ex: 1/2023')
+        self.bt_gerar.setVisible(True)
+        self.ed_periodo.setVisible(True)
+        self.ed_periodo.setFocus()
+
+    def vendasProcessaImagem(self, mes, ano):
+        retorno = operacoes.geraGraficoMes(mes, ano)
+        if retorno:
+            pixmap = QPixmap('grafico.jpg')
+            self.lbl_fig.setScaledContents(True)
+            self.lbl_fig.setPixmap(pixmap)
+            # self.lbl_fig.resize(600, 300)
+
+            # self.resize(300, 600)
 
 
 qt = QApplication(sys.argv)
