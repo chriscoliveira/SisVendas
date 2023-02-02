@@ -3,6 +3,10 @@ from time import sleep
 import os
 import re
 import sys
+from datetime import datetime
+import calendar
+import matplotlib.pyplot as plt
+import pandas as pd
 
 sistema = sys.platform
 if sistema == 'linux':
@@ -188,6 +192,81 @@ class Operacoes:
         except Exception as e:
             return '', '', '', '', '', ''
 
+    def geraGraficoMes(self, dia, mes, ano):
+        test_date = datetime(ano, mes, dia)
+        ultimo_dia_mes = calendar.monthrange(
+            test_date.year, test_date.month)[1]
+
+        # Executar a consulta SQL para obter as vendas diárias
+        self.cursor.execute(
+            "SELECT replace(data,'-','/'), total_compra FROM vendas where ativo = 'SIM'")
+        dados_ativo = self.cursor.fetchall()
+
+        self.cursor.execute(
+            "SELECT replace(data,'-','/'), total_compra FROM vendas where ativo = 'CANCELADO'")
+        dados_cancelado = self.cursor.fetchall()
+
+        #################### ATIVO ########################################
+        # cria um dataframe
+        df = pd.DataFrame(dados_ativo, columns=['DATA', 'VENDA'])
+
+        # corrige o valor
+        df['VENDA'] = pd.to_numeric(df['VENDA'])
+
+        # corrige a data
+        df['DATA'] = df['DATA'].apply(lambda x: x[:10])
+        df['DATA'] = pd.to_datetime(df['DATA'], dayfirst=True)
+        s = pd.to_datetime(df['DATA'], unit='s')   # no need to wrap in Series
+        assert str(s.dtype) == 'datetime64[ns]'   # VERY IMPORTANT!!!!
+        df.index = s
+        df = df[f'{ano}-{mes}-01':f'{ano}-{mes}-{ultimo_dia_mes}']
+        df.reset_index(drop=True, inplace=True)
+
+        # agrupa as datas
+        df = df.groupby('DATA').sum()
+
+        # cria uma nova coluna
+        df['DIA'] = df.index
+        df['DIA'] = df['DIA'].astype(str).apply(lambda x: x[8:])
+        resultado_ativo = df.groupby("DIA")['VENDA'].sum()
+
+        #################### CANCELADO ########################################
+        # cria um dataframe
+        df = pd.DataFrame(dados_cancelado, columns=['DATA', 'CANCELADO'])
+
+        # corrige o valor
+        df['CANCELADO'] = pd.to_numeric(df['CANCELADO'])
+
+        # corrige a data
+        df['DATA'] = df['DATA'].apply(lambda x: x[:10])
+        df['DATA'] = pd.to_datetime(df['DATA'], dayfirst=True)
+        s = pd.to_datetime(df['DATA'], unit='s')   # no need to wrap in Series
+        assert str(s.dtype) == 'datetime64[ns]'   # VERY IMPORTANT!!!!
+        df.index = s
+        df = df[f'{ano}-{mes}-01':f'{ano}-{mes}-{ultimo_dia_mes}']
+        df.reset_index(drop=True, inplace=True)
+
+        # agrupa as datas
+        df = df.groupby('DATA').sum()
+
+        # cria uma nova coluna
+        df['DIA'] = df.index
+        df['DIA'] = df['DIA'].astype(str).apply(lambda x: x[8:])
+        resultado_cancelado = df.groupby("DIA")['CANCELADO'].sum()
+
+        resultado = pd.concat([resultado_ativo, resultado_cancelado], axis=1)
+        ############# GRAFICO ##################################################
+
+        resultado.sort_values('DIA').plot(kind='bar')
+
+        plt.title(f"Venda do mês {mes}/{ano}")
+        plt.xlabel("Dia")
+        plt.ylabel("Total R$")
+        # plt.show()
+        plt.savefig('grafico.jpg')
+
+        # Gerar o gráfico de linhas
+
 
 if __name__ == "__main__":
     sistema = sys.platform
@@ -197,25 +276,3 @@ if __name__ == "__main__":
     else:
         operacoes = Operacoes('..\\DB\\dbase.db')
         foto = 'img\\tela.jpg'
-
-    # retorno = operacoes.inserir(
-    #     "1", "7891234", 'acucar', '10', '1,00', '4,50', '')
-    # print(retorno)
-
-    # retorno = operacoes.editar(
-    #     '5', '0', '123', 'cafe', '12', '8,00', '13,01', '')
-    # retorno = operacoes.remover('7')
-    # print(retorno)
-
-    # retorno = operacoes.listar_tudo(tabela='venda_tmp')
-    # # retorno = operacoes.agrupaItensTmp()
-    # print(retorno)
-
-    # # retorno = operacoes.buscar('789123')
-    # retorno = operacoes.remove_item_a_cancelar('789')
-    # retorno = operacoes.cadastrarVenda(
-    #     '20-01-2023', 'aaaaaa', '50', 'dinheiro', '25')
-    # retorno = operacoes.verificaUltimoCupom()
-    retorno = operacoes.criaCupom('7')
-    # retorno = operacoes.buscarUsuario('1980')
-    print(retorno)
