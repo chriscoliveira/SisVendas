@@ -26,6 +26,9 @@ else:
 data_e_hora_atuais = datetime.now()
 data_atual = date.today()
 data = data_e_hora_atuais.strftime('%d-%m-%Y %H:%M:%S')
+datasimples = data_e_hora_atuais.strftime('%d-%m-%Y')
+mes = data_e_hora_atuais.strftime('%m')
+ano = data_e_hora_atuais.strftime('%Y')
 
 
 class Novo(QMainWindow, Ui_MainWindow):
@@ -196,6 +199,8 @@ class Novo(QMainWindow, Ui_MainWindow):
             blogin, bsenha, bnome = acesso.buscaOperador(login)
             if str(blogin) == str(login) and str(bsenha) == str(senha):
                 retorno, qtd_linhas = acesso.retiraOperador(login)
+                ret = operacoes.criaCupom(
+                    saida='sim', datasaida=datasimples, operador=login)
                 # print(qtd_linhas)
                 if retorno:
                     if qtd_linhas > 0:

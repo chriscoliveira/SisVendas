@@ -8,14 +8,17 @@ CNPJ 01.157.555/0021-58
         CUPOM SEM VALOR FISCAL
 -----------------------------------------
 VENDAS EFETUADAS
-	CREDITO R$178.17
-	DINHEIRO R$150.00
+	CREDITO R$48.12
+	DEBITO R$104.04
+	DINHEIRO R$16.56
 	PIX R$8.67
 
 VENDAS CANCELADAS
+	CREDITO R$130.05
+	DINHEIRO R$9.00
 
 
 
-	Christian Carvalho
+	CHRISTIAN
 -----------------------------------------
-	06-02-2023 14:57:48
+	06-02-2023 19:32:28

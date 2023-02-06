@@ -203,7 +203,7 @@ class Operacoes:
             return False, False
 
     # imprime o cupom caso tenha o coo, se nao tiver imprime a reducao do dia
-    def criaCupom(self, coo=False, login=False, reducaoz=False, saida=False, data=False, operador=False):
+    def criaCupom(self, coo=False, login=False, reducaoz=False, saida=False, datasaida=False, operador=False):
 
         if coo:  # se for cupom de venda ou cancelamento
             sql_busca = 'select * from vendas where coo=?'
@@ -223,13 +223,13 @@ class Operacoes:
 
         elif reducaoz:  # se for reducao do dia
             cupom_ativo, cupom_cancelado = [], []
-            sql_ativos = f'SELECT forma_pagamento,sum(valor_pago) from vendas where data like "{dataResumida}%" and ativo="SIM" GROUP by forma_pagamento'
+            sql_ativos = f'SELECT forma_pagamento,sum(total_compra) from vendas where data like "{dataResumida}%" and ativo="SIM" GROUP by forma_pagamento'
             qtd_ativo = self.cursor.rowcount
             self.cursor.execute(sql_ativos)
             for i in self.cursor.fetchall():
                 cupom_ativo.append(i)
             # print(cupom_ativo)
-            sql_cancelados = f'SELECT forma_pagamento,sum(valor_pago) from vendas where data like "{dataResumida}%" and ativo="CANCELADO" GROUP by forma_pagamento'
+            sql_cancelados = f'SELECT forma_pagamento,sum(total_compra) from vendas where data like "{dataResumida}%" and ativo="CANCELADO" GROUP by forma_pagamento'
             qtd_cancelado = self.cursor.rowcount
             self.cursor.execute(sql_cancelados)
             for i in self.cursor.fetchall():
@@ -237,13 +237,13 @@ class Operacoes:
             # print(cupom_cancelado)
         elif saida:
             cupom_ativo, cupom_cancelado = [], []
-            sql_ativos = f'SELECT forma_pagamento,sum(valor_pago) from vendas where data like "{data}%" and operador = "{operador}" and ativo="SIM" GROUP by forma_pagamento'
+            sql_ativos = f'SELECT forma_pagamento,sum(total_compra) from vendas where data like "{datasaida}%" and operador = "{operador}" and ativo="SIM" GROUP by forma_pagamento'
             qtd_ativo = self.cursor.rowcount
             self.cursor.execute(sql_ativos)
             for i in self.cursor.fetchall():
                 cupom_ativo.append(i)
             print(cupom_ativo)
-            sql_cancelados = f'SELECT forma_pagamento,sum(valor_pago) from vendas where data like "{data}%" and operador = "{operador}" and ativo="CANCELADO" GROUP by forma_pagamento'
+            sql_cancelados = f'SELECT forma_pagamento,sum(total_compra) from vendas where data like "{datasaida}%" and operador = "{operador}" and ativo="CANCELADO" GROUP by forma_pagamento'
             qtd_cancelado = self.cursor.rowcount
             self.cursor.execute(sql_cancelados)
             for i in self.cursor.fetchall():
@@ -262,10 +262,12 @@ class Operacoes:
                     for inicio in inicioCupom:
                         if coo:
                             e.write(inicio.replace('{coo}', str(coo)))
-                        else:
+                        elif reducaoz:
                             e.write(inicio.replace(
                                 'EXTRATO No. {coo}', ' FIM DO DIA'))
-
+                        elif saida:
+                            e.write(inicio.replace(
+                                'EXTRATO No. {coo}', ' SAIDA DE OPERADOR'))
                     if coo:
                         # verifica se é cancelamento
                         if ativo == 'CANCELADO':
@@ -299,7 +301,7 @@ class Operacoes:
                                 e.write(
                                     f'{i[1]} {i[2]}\n        {i[0]} X {"{:.2f}".format(tot)} = R${"{:.2f}".format(valor)}\n')
 
-                    else:
+                    elif reducaoz:
                         # gera o fim do dia
                         txt_ativo = ''
                         txt_ativo += 'VENDAS EFETUADAS\n'
@@ -315,6 +317,15 @@ class Operacoes:
 
                         e.write(txt_ativo)
                         e.write('\n'+txt_cancelado)
+                    elif saida:
+                        e.write('\nRESUMO DE VENDAS\n')
+                        for i in cupom_ativo:
+                            e.write(f'{i[0]: <20}R${i[1]}\n')
+                        if len(cupom_cancelado) > 0:
+                            e.write('\nRESUMO DOS CANCELADOS\n')
+                            for i in cupom_cancelado:
+                                e.write(f'{i[0]: <20}R${i[1]}\n')
+                        login = operador
 
                     # escreve o fim do cupom
                     if coo:
@@ -338,7 +349,7 @@ class Operacoes:
         except:
             return False
 
-    def saiOperador(self, data, operador):
+    def saiOperadorz(self, data, operador):
 
         cupom_ativo, cupom_cancelado = [], []
         sql_ativos = f'SELECT forma_pagamento,sum(valor_pago) from vendas where data like "{data}%" and operador = "{operador}" and ativo="SIM" GROUP by forma_pagamento'
@@ -346,13 +357,15 @@ class Operacoes:
         self.cursor.execute(sql_ativos)
         for i in self.cursor.fetchall():
             cupom_ativo.append(i)
-        print(cupom_ativo)
+        # print(cupom_ativo)
         sql_cancelados = f'SELECT forma_pagamento,sum(valor_pago) from vendas where data like "{data}%" and operador = "{operador}" and ativo="CANCELADO" GROUP by forma_pagamento'
         qtd_cancelado = self.cursor.rowcount
         self.cursor.execute(sql_cancelados)
         for i in self.cursor.fetchall():
             cupom_cancelado.append(i)
-        print(cupom_cancelado)
+        # print(cupom_cancelado)
+
+        return cupom_ativo, cupom_cancelado
 
 
 if __name__ == "__main__":
@@ -365,7 +378,7 @@ if __name__ == "__main__":
         operacoes = Operacoes('..\\DB\\dbase.db')
         foto = '..\\img\\tela.jpg'
 
-    operacoes.saiOperador('06-02-2023', '1980')
+    operacoes.criaCupom(saida='sim', datasaida='06-02-2023', operador='1980')
     # acesso = Acesso('..\\DB\\dbase.db')
     # retorno = operacoes.inserir(
     #     "1", "7891234", 'acucar', '10', '1,00', '4,50', '')
