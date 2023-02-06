@@ -48,15 +48,15 @@ class Operacoes:
             return f"Ocorreu um erro ao adicionar = {e}"
 
     # cadastra a venda na tabela vendas
-    def cadastrarVenda(self, data, itens, total_compra, forma_pagamento, pago, troco):
+    def cadastrarVenda(self, data, itens, total_compra, forma_pagamento, pago, troco, operador):
         # total_compra ="{:.2f}".format(total_compra)
         # pago ="{:.2f}".format(pago)
         # troco ="{:.2f}".format(troco)
         try:
             # cadastra a venda
-            sql = "INSERT INTO vendas (data, itens,total_compra,forma_pagamento,valor_pago,troco) VALUES (?,?,?,?,?,?)"
+            sql = "INSERT INTO vendas (data, itens,total_compra,forma_pagamento,valor_pago,troco,operador) VALUES (?,?,?,?,?,?,?)"
             self.cursor.execute(
-                sql, (data, itens, total_compra, forma_pagamento, pago, troco))
+                sql, (data, itens, total_compra, forma_pagamento, pago, troco, operador))
             self.conn.commit()
 
             # baixa o estoque
@@ -203,7 +203,7 @@ class Operacoes:
             return False, False
 
     # imprime o cupom caso tenha o coo, se nao tiver imprime a reducao do dia
-    def criaCupom(self, coo=False, login=False):
+    def criaCupom(self, coo=False, login=False, reducaoz=False, saida=False, data=False, operador=False):
 
         if coo:  # se for cupom de venda ou cancelamento
             sql_busca = 'select * from vendas where coo=?'
@@ -221,7 +221,7 @@ class Operacoes:
                 pago = linha[6]
                 troco = linha[7]
 
-        else:  # se for reducao do dia
+        elif reducaoz:  # se for reducao do dia
             cupom_ativo, cupom_cancelado = [], []
             sql_ativos = f'SELECT forma_pagamento,sum(valor_pago) from vendas where data like "{dataResumida}%" and ativo="SIM" GROUP by forma_pagamento'
             qtd_ativo = self.cursor.rowcount
@@ -235,7 +235,20 @@ class Operacoes:
             for i in self.cursor.fetchall():
                 cupom_cancelado.append(i)
             # print(cupom_cancelado)
-
+        elif saida:
+            cupom_ativo, cupom_cancelado = [], []
+            sql_ativos = f'SELECT forma_pagamento,sum(valor_pago) from vendas where data like "{data}%" and operador = "{operador}" and ativo="SIM" GROUP by forma_pagamento'
+            qtd_ativo = self.cursor.rowcount
+            self.cursor.execute(sql_ativos)
+            for i in self.cursor.fetchall():
+                cupom_ativo.append(i)
+            print(cupom_ativo)
+            sql_cancelados = f'SELECT forma_pagamento,sum(valor_pago) from vendas where data like "{data}%" and operador = "{operador}" and ativo="CANCELADO" GROUP by forma_pagamento'
+            qtd_cancelado = self.cursor.rowcount
+            self.cursor.execute(sql_cancelados)
+            for i in self.cursor.fetchall():
+                cupom_cancelado.append(i)
+            print(cupom_cancelado)
         # prepara o cupom
         with open(f'CONFIG/cupom1.txt', 'r') as inicioCupom:
             inicioCupom = inicioCupom.readlines()
@@ -325,6 +338,22 @@ class Operacoes:
         except:
             return False
 
+    def saiOperador(self, data, operador):
+
+        cupom_ativo, cupom_cancelado = [], []
+        sql_ativos = f'SELECT forma_pagamento,sum(valor_pago) from vendas where data like "{data}%" and operador = "{operador}" and ativo="SIM" GROUP by forma_pagamento'
+        qtd_ativo = self.cursor.rowcount
+        self.cursor.execute(sql_ativos)
+        for i in self.cursor.fetchall():
+            cupom_ativo.append(i)
+        print(cupom_ativo)
+        sql_cancelados = f'SELECT forma_pagamento,sum(valor_pago) from vendas where data like "{data}%" and operador = "{operador}" and ativo="CANCELADO" GROUP by forma_pagamento'
+        qtd_cancelado = self.cursor.rowcount
+        self.cursor.execute(sql_cancelados)
+        for i in self.cursor.fetchall():
+            cupom_cancelado.append(i)
+        print(cupom_cancelado)
+
 
 if __name__ == "__main__":
     sistema = sys.platform
@@ -335,7 +364,9 @@ if __name__ == "__main__":
     else:
         operacoes = Operacoes('..\\DB\\dbase.db')
         foto = '..\\img\\tela.jpg'
-        # acesso = Acesso('..\\DB\\dbase.db')
+
+    operacoes.saiOperador('06-02-2023', '1980')
+    # acesso = Acesso('..\\DB\\dbase.db')
     # retorno = operacoes.inserir(
     #     "1", "7891234", 'acucar', '10', '1,00', '4,50', '')
     # print(retorno)
@@ -354,9 +385,9 @@ if __name__ == "__main__":
     # retorno = operacoes.cadastrarVenda(
     #     '20-01-2023', 'aaaaaa', '50', 'dinheiro', '25')
     # retorno = operacoes.verificaUltimoCupom()
-    retorno = operacoes.criaCupom(login='Christian Carvalho')
+    # retorno = operacoes.criaCupom(login='Christian Carvalho')
     # print(operacoes.reducaoZ())
-    print(retorno)
+    # print(retorno)
     # import serial
 
     # ser = serial.Serial('/dev/ttyACM0', 9600)

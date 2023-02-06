@@ -30,6 +30,8 @@ else:
 data_e_hora_atuais = datetime.now()
 data_atual = date.today()
 data = data_e_hora_atuais.strftime('%d-%m-%Y %H:%M:%S')
+mes = data_e_hora_atuais.strftime('%m')
+ano = data_e_hora_atuais.strftime('%Y')
 
 
 class Novo(QMainWindow, Ui_MainWindow):
@@ -38,7 +40,7 @@ class Novo(QMainWindow, Ui_MainWindow):
         super().setupUi(self)
 
         self.moduloAtivo = 'login'
-        self.showMaximized()
+
         # self.resize(self.sizeHint().width,self.size().height() + content.sizeHint().height());
         # self.gridLayout_4.setAlignment()
         self.frame_modulo_login.hide()
@@ -57,6 +59,8 @@ class Novo(QMainWindow, Ui_MainWindow):
         # duplo clique na lista cancela o item
         # self.lst_itens.itemDoubleClicked.connect(
         #     lambda: self.cancelaItem())
+        # self.showMaximized()
+        self.setFixedSize(800, 800)
 
     # 1 abre o form de login e espera que o usuario preencha os dados
 
@@ -301,43 +305,81 @@ class Novo(QMainWindow, Ui_MainWindow):
         self.frame_modulo_login.hide()
         self.frame_modulo_produtos.hide()
         self.frame_vendas.show()
-        self.bt_gerar.setVisible(False)
+
         self.ed_periodo.setVisible(False)
+        self.bt_gerar_excel.setVisible(False)
+        self.bt_gerar_tipo.setVisible(False)
+        self.bt_gerar_dia.setVisible(False)
+        self.bt_gerar_ano.setVisible(False)
         self.lbl_info.setText('')
+        self.ed_periodo.setText(f'{mes}/{ano}')
 
         # exibe campos ocultos
         self.bt_pordia.clicked.connect(lambda: self.exibeCamposOcultos('dia'))
         self.bt_mesames.clicked.connect(lambda: self.exibeCamposOcultos('mes'))
         self.bt_portipo.clicked.connect(
-            lambda: self.exibeCamposOcultos('tipo'))
+            lambda: self.exibeCamposOcultos('tip'))
         # self.bt_geraexcel.clicked.connect(
         #     lambda: self.exibeCamposOcultos('excel'))
 
+    # 2 relatorio
     def exibeCamposOcultos(self, tipo):
         if tipo == 'dia':
             self.lbl_info.setText(
                 'Por Dia: Digite no campo abaixo o mes/ano Ex: 1/2023')
-            self.bt_gerar.clicked.connect(lambda: self.vendasProcessaImagem(int(
-                self.ed_periodo.text().split('/')[0]), int(self.ed_periodo.text().split('/')[1])))
+            self.ed_periodo.setText(f'{mes}/{ano}')
+            self.bt_gerar_excel.setVisible(False)
+            self.bt_gerar_tipo.setVisible(False)
+            self.bt_gerar_dia.setVisible(True)
+            self.bt_gerar_ano.setVisible(False)
+            self.ed_periodo.setVisible(True)
+            self.ed_periodo.setFocus()
+
+            self.bt_gerar_dia.clicked.connect(lambda: self.vendasProcessaImagem(mes=int(
+                self.ed_periodo.text().split('/')[0]), ano=int(self.ed_periodo.text().split('/')[1])))
         elif tipo == 'mes':
             self.lbl_info.setText(
                 'Por Mes: Digite no campo abaixo o ano desejado Ex: 2023')
-        elif tipo == 'tipo':
+            self.ed_periodo.setText(ano)
+            self.bt_gerar_excel.setVisible(False)
+            self.bt_gerar_tipo.setVisible(False)
+            self.bt_gerar_dia.setVisible(False)
+            self.bt_gerar_ano.setVisible(True)
+            self.ed_periodo.setVisible(True)
+            self.ed_periodo.setFocus()
+
+            self.bt_gerar_ano.clicked.connect(lambda: self.vendasProcessaImagem(
+                ano=self.ed_periodo.text()))
+
+        elif tipo == 'tip':
             self.lbl_info.setText(
                 'Por Tipo: Digite no campo abaixo o mes/ano Ex: 1/2023')
-        self.bt_gerar.setVisible(True)
-        self.ed_periodo.setVisible(True)
-        self.ed_periodo.setFocus()
+            self.bt_gerar_excel.setVisible(False)
+            self.bt_gerar_tipo.setVisible(True)
+            self.bt_gerar_dia.setVisible(False)
+            self.bt_gerar_ano.setVisible(False)
+            self.ed_periodo.setVisible(True)
+            self.ed_periodo.setText(f'{mes}/{ano}')
+            self.ed_periodo.setFocus()
+            self.bt_gerar_tipo.clicked.connect(lambda: self.vendasProcessaImagem(mes=int(
+                self.ed_periodo.text().split('/')[0]), ano=int(self.ed_periodo.text().split('/')[1]), tipo='sim'))
 
-    def vendasProcessaImagem(self, mes, ano):
-        retorno = operacoes.geraGraficoMes(mes, ano)
-        if retorno:
-            pixmap = QPixmap('grafico.jpg')
-            self.lbl_fig.setScaledContents(True)
-            self.lbl_fig.setPixmap(pixmap)
-            # self.lbl_fig.resize(600, 300)
+    # 3 relatorio
+    def vendasProcessaImagem(self, mes=False, ano=False, tipo=False):
+        if tipo == 'sim':
+            retorno = operacoes.geraGraficoTipo(mes, ano)
+        elif mes and ano:
+            retorno = operacoes.geraGraficoMes(mes, ano)
+        elif ano:
+            print('ano')
+            retorno = operacoes.geraGraficoAno(ano)
 
-            # self.resize(300, 600)
+        # if retorno:
+        #     pixmap = QPixmap('grafico.jpg')
+
+        #     self.lbl_fig.setPixmap(pixmap)
+        #     self.lbl_fig.setAlignment(QtCore.Qt.AlignCenter)
+        #     self.lbl_fig.setScaledContents(True)
 
 
 qt = QApplication(sys.argv)

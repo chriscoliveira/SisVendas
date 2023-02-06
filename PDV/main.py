@@ -34,7 +34,6 @@ class Novo(QMainWindow, Ui_MainWindow):
         super().setupUi(self)
 
         # self.setFixedSize(800, 600)
-        self.showMaximized()
 
         self.frame_subtotal.hide()
         self.frame_login.hide()
@@ -79,6 +78,7 @@ class Novo(QMainWindow, Ui_MainWindow):
             pass
 
         self.iniciaPDV(login=login, nome=nome)
+        self.showMaximized()
 
     def iniciaPDV(self, login=False, nome=False):
         if login:
@@ -351,9 +351,10 @@ class Novo(QMainWindow, Ui_MainWindow):
         total = str(total).replace('R$ ', '')
         pago = str(pago).replace('R$ ', '')
         troco = str(troco).replace('R$ ', '')
+        operador = str(self.lbl_rodape.text()).split(' ')[1]
 
         retorno = operacoes.cadastrarVenda(
-            data, str(itens), total, forma, pago, troco)
+            data, str(itens), total, forma, pago, troco, operador)
         if retorno:
 
             operacoes.limpaTemp()
@@ -469,7 +470,7 @@ class Novo(QMainWindow, Ui_MainWindow):
         nivel = False
         nivel, nome = acesso.verificaNivelUsuario(login, senha)
         if nivel == 'GERENTE':
-            retorno = operacoes.criaCupom(login=nome)
+            retorno = operacoes.criaCupom(login=nome, reducaoz=True)
             if retorno:
                 # if status == 'SIM':
                 QMessageBox.information(

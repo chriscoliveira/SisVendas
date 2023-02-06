@@ -193,6 +193,102 @@ class Operacoes:
         except Exception as e:
             return '', '', '', '', '', ''
 
+    def geraGraficoMes1(self, mes, ano):
+        try:
+            test_date = datetime(ano, mes, 1)
+            ultimo_dia_mes = calendar.monthrange(
+                test_date.year, test_date.month)[1]
+
+            # Executar a consulta SQL para obter as vendas diárias
+            self.cursor.execute(
+                "SELECT replace(data,'-','/'), total_compra FROM vendas where ativo = 'SIM'")
+            dados_ativo = self.cursor.fetchall()
+
+            self.cursor.execute(
+                "SELECT replace(data,'-','/'), total_compra FROM vendas where ativo = 'CANCELADO'")
+            dados_cancelado = self.cursor.fetchall()
+
+            #################### ATIVO ########################################
+            # cria um dataframe
+            df = pd.DataFrame(dados_ativo, columns=['DATA', 'VENDA'])
+
+            # corrige o valor
+            df['VENDA'] = pd.to_numeric(df['VENDA'])
+
+            # corrige a data
+            df['DATA'] = df['DATA'].apply(lambda x: x[:10])
+            df['DATA'] = pd.to_datetime(df['DATA'], dayfirst=True)
+            # no need to wrap in Series
+            s = pd.to_datetime(df['DATA'], unit='s')
+            assert str(s.dtype) == 'datetime64[ns]'   # VERY IMPORTANT!!!!
+            df.index = s
+            df = df[f'{ano}-{mes}-01':f'{ano}-{mes}-{ultimo_dia_mes}']
+            df.reset_index(drop=True, inplace=True)
+
+            # agrupa as datas
+            df = df.groupby('DATA').sum()
+
+            # cria uma nova coluna
+            df['DIA'] = df.index
+            df['DIA'] = df['DIA'].astype(str).apply(lambda x: x[8:])
+            resultado_ativo = df.groupby("DIA")['VENDA'].sum()
+
+            #################### CANCELADO ########################################
+            # cria um dataframe
+            df = pd.DataFrame(dados_cancelado, columns=['DATA', 'CANCELADO'])
+
+            # corrige o valor
+            df['CANCELADO'] = pd.to_numeric(df['CANCELADO'])
+
+            # corrige a data
+            df['DATA'] = df['DATA'].apply(lambda x: x[:10])
+            df['DATA'] = pd.to_datetime(df['DATA'], dayfirst=True)
+            df = df.loc[df['DATA'].isin([f'{mes}/{ano}'])]
+            df = df.groupby('DATA').sum()
+
+            # cria uma nova coluna
+            df['DIA'] = df.index
+            df['DIA'] = df['DIA'].astype(str).apply(lambda x: x[8:])
+            resultado_cancelado = df.groupby("DIA")['CANCELADO'].sum()
+
+            df = pd.concat(
+                [resultado_ativo, resultado_cancelado], axis=1)
+            df['DIA'] = df.index
+            print(df)
+            ############# GRAFICO ##################################################
+
+            fig, ax = plt.subplots()
+
+            bar_width = 0.35
+            x = np.arange(len(df['DIA']))
+            bar1 = ax.bar(x - bar_width/2,
+                          df['VENDA'], bar_width, label='VENDA')
+            bar2 = ax.bar(x + bar_width/2,
+                          df['CANCELADO'], bar_width, label='CANCELADO')
+
+            # Adicionando labels com os valores a cada coluna
+            for i, v in enumerate(df['VENDA']):
+                ax.text(i - bar_width, v, f'R$ {v}', color='black',
+                        va='bottom', fontweight='bold')
+            for i, v in enumerate(df['CANCELADO']):
+                ax.text(i, v, f'R$ {v}', color='red',
+                        va='bottom')
+
+            ax.set_xticks(x)
+            ax.set_xticklabels(df['DIA'])
+            ax.legend(loc='upper left')
+            plt.title(f"Venda do mês {mes}/{ano}")
+            plt.xlabel(f"Dia do mes {mes}")
+            plt.ylabel("Valor Total do dia")
+            # plt.savefig('grafico.jpg', dpi=200)
+            plt.show()
+
+            return True
+
+        except Exception as e:
+            print(e)
+            return False
+
     def geraGraficoMes(self, mes, ano):
         try:
             test_date = datetime(ano, mes, 1)
@@ -287,7 +383,131 @@ class Operacoes:
             plt.title(f"Venda do mês {mes}/{ano}")
             plt.xlabel(f"Dia do mes {mes}")
             plt.ylabel("Valor Total do dia")
-            plt.savefig('grafico.jpg', dpi=200)
+            # plt.savefig('grafico.jpg', dpi=200)
+            plt.show()
+
+            return True
+
+        except Exception as e:
+            print(e)
+            return False
+
+    def geraGraficoAno(self, ano):
+        try:
+
+            # Executar a consulta SQL para obter as vendas diárias
+            self.cursor.execute(
+                "SELECT replace(data,'-','/'), total_compra FROM vendas where ativo = 'SIM'")
+            dados_ativo = self.cursor.fetchall()
+
+            self.cursor.execute(
+                "SELECT replace(data,'-','/'), total_compra FROM vendas where ativo = 'CANCELADO'")
+            dados_cancelado = self.cursor.fetchall()
+            print(dados_ativo)
+            #################### ATIVO ########################################
+            # cria um dataframe
+            df = pd.DataFrame(dados_ativo, columns=['DATA', 'VENDA'])
+            # dfc = pd.DataFrame(dados_cancelado, columns=['DATA', 'CANCELADO'])
+
+            # corrige o valor
+            df['VENDA'] = pd.to_numeric(df['VENDA'])
+            # dfc['VENDA'] = pd.to_numeric(dfc['CANCELADO'])
+
+            # corrige a data
+            df['DATA'] = df['DATA'].apply(lambda x: x[3:10])
+            # dfc['DATA'] = dfc['CANCELADO'].apply(lambda x: x[3:10])
+
+            df_final = pd.DataFrame()
+
+            for i in range(1, 13):
+                df_temp = df.loc[df['DATA'].isin([f'0{i}/{ano}'])]
+                df_temp = df_temp.groupby('DATA').sum()
+                if not df_temp.empty:
+                    df_final = pd.concat([df_final, df_temp])
+
+                # df_tempc = dfc.loc[dfc['DATA'].isin([f'0{i}/{ano}'])]
+                # df_tempc = df_tempc.groupby('DATA').sum()
+                # if not df_temp.empty:
+                #     df_final = pd.concat([df_final, df_tempc])
+
+            df_final['DATA'] = df_final.index
+            print(df_final)
+            # ############# GRAFICO ##################################################
+
+            fig, ax = plt.subplots()
+
+            bar_width = 0.35
+            x = np.arange(len(df_final['DATA']))
+            bar1 = ax.bar(x - bar_width/2,
+                          df_final['VENDA'], bar_width, label='VENDA')
+            # bar2 = ax.bar(x + bar_width/2,
+            #   df['CANCELADO'], bar_width, label='CANCELADO')
+
+            # Adicionando labels com os valores a cada coluna
+            for i, v in enumerate(df_final['VENDA']):
+                ax.text(i - bar_width, v, f'R$ {v}', color='black',
+                        va='bottom', fontweight='bold')
+            # for i, v in enumerate(df['CANCELADO']):
+            #     ax.text(i, v, f'R$ {v}', color='red',
+            #             va='bottom')
+
+            ax.set_xticks(x)
+            ax.set_xticklabels(df_final['DATA'])
+            ax.legend(loc='upper left')
+            plt.title(f"Venda de {ano}")
+            plt.xlabel(f"Mes")
+            plt.ylabel("Valor Total do mes")
+            # plt.savefig('grafico.jpg', dpi=200)
+            plt.show()
+
+            return True
+        except Exception as e:
+            print(e)
+
+    def geraGraficoTipo(self, mes, ano):
+        try:
+            test_date = datetime(ano, mes, 1)
+            ultimo_dia_mes = calendar.monthrange(
+                test_date.year, test_date.month)[1]
+
+            # Executar a consulta SQL para obter as vendas diárias
+            self.cursor.execute(
+                "SELECT replace(data,'-','/'), forma_pagamento FROM vendas where ativo = 'SIM'")
+            dados_ativo = self.cursor.fetchall()
+
+            #################### ATIVO ########################################
+            # cria um dataframe
+            df = pd.DataFrame(dados_ativo, columns=[
+                              'DATA', 'FORMA_PAGAMENTO'])
+
+            # corrige a data
+            df['DATA'] = df['DATA'].apply(lambda x: x[:10])
+            df['DATA'] = pd.to_datetime(df['DATA'], dayfirst=True)
+            # no need to wrap in Series
+            s = pd.to_datetime(df['DATA'], unit='s')
+            assert str(s.dtype) == 'datetime64[ns]'   # VERY IMPORTANT!!!!
+            df.index = s
+            df = df[f'{ano}-{mes}-01':f'{ano}-{mes}-{ultimo_dia_mes}']
+            df.reset_index(drop=True, inplace=True)
+
+            # agrupa as datas
+            df = df.groupby('FORMA_PAGAMENTO').count()
+
+            # cria uma nova coluna
+            df['DIA'] = df.index
+            df['DIA'] = df['DIA'].astype(str).apply(lambda x: x[8:])
+            print(df)
+
+            ############# GRAFICO ##################################################
+
+            # df.plot(y='DATA', kind='pie')
+            df.plot.pie(y='DATA', figsize=(5, 5),
+                        autopct='%1.1f%%', startangle=90)
+            plt.legend('', frameon=False)
+            plt.title(f"Venda por forma de pagamento no mês {mes}/{ano}")
+            plt.xlabel(f"")
+            plt.ylabel('')
+            plt.show()
 
             return True
 
@@ -305,4 +525,4 @@ if __name__ == "__main__":
         operacoes = Operacoes('..\\DB\\dbase.db')
         foto = 'img\\tela.jpg'
 
-    print(operacoes.geraGraficoMes(1, 2023))
+    print(operacoes.geraGraficoTipo(2, 2023))
