@@ -9,9 +9,11 @@ sistema = sys.platform
 if sistema == 'linux':
     nome_cupom = 'CUPOM/cupom_'
     porta_com = '/dev/ttyACM0'
+    banco = '../DB/dbase.db'
 else:
     nome_cupom = 'CUPOM\\cupom_'
     porta_com = 'COM1'
+    banco = '..\\DB\\dbase.db'
 
 data_e_hora_atuais = datetime.now()
 data_atual = date.today()
@@ -105,9 +107,12 @@ class Operacoes:
         except Exception as e:
             return f"Ocorreu um erro ao alterar = {e}"
 
-    def listar_tudo(self, tabela):
+    def listar_tudo(self, tabela, tudo=False):
         itens = []
-        sql = "SELECT ean,produto,valor FROM "+tabela
+        if tudo:
+            sql = "SELECT * FROM "+tabela
+        else:
+            sql = "SELECT ean,produto,valor FROM "+tabela
         self.cursor.execute(sql)
         contador = 0
         for linha in self.cursor.fetchall():
@@ -378,32 +383,6 @@ if __name__ == "__main__":
         operacoes = Operacoes('..\\DB\\dbase.db')
         foto = '..\\img\\tela.jpg'
 
-    operacoes.criaCupom(saida='sim', datasaida='06-02-2023', operador='1980')
-    # acesso = Acesso('..\\DB\\dbase.db')
-    # retorno = operacoes.inserir(
-    #     "1", "7891234", 'acucar', '10', '1,00', '4,50', '')
-    # print(retorno)
+    # operacoes.criaCupom(saida='sim', datasaida='06-02-2023', operador='1980')
 
-    # retorno = operacoes.editar(
-    #     '5', '0', '123', 'cafe', '12', '8,00', '13,01', '')
-    # retorno = operacoes.remover('7')
-    # print(retorno)
-
-    # retorno = operacoes.listar_tudo(tabela='venda_tmp')
-    # # retorno = operacoes.agrupaItensTmp()
-    # print(retorno)
-
-    # # retorno = operacoes.buscar('789123')
-    # retorno = operacoes.remove_item_a_cancelar('789')
-    # retorno = operacoes.cadastrarVenda(
-    #     '20-01-2023', 'aaaaaa', '50', 'dinheiro', '25')
-    # retorno = operacoes.verificaUltimoCupom()
-    # retorno = operacoes.criaCupom(login='Christian Carvalho')
-    # print(operacoes.reducaoZ())
-    # print(retorno)
-    # import serial
-
-    # ser = serial.Serial('/dev/ttyACM0', 9600)
-    # with open(f'CUPOM/cupom_7.txt', 'r') as f:
-    #     text = f.read()
-    # ser.write(text.encode())
+    # operacoes.criaExcel('excel.xlsx')

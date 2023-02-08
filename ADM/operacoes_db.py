@@ -74,9 +74,12 @@ class Operacoes:
         except Exception as e:
             return f"Ocorreu um erro ao alterar = {e}"
 
-    def listar_tudo(self, tabela):
+    def listar_tudo(self, tabela, tudo=False):
         itens = []
-        sql = "SELECT * FROM "+tabela+" order by produto"
+        if tudo:
+            sql = "SELECT * FROM "+tabela
+        else:
+            sql = "SELECT ean,produto,valor FROM "+tabela
         self.cursor.execute(sql)
         contador = 0
         for linha in self.cursor.fetchall():
@@ -193,7 +196,7 @@ class Operacoes:
         except Exception as e:
             return '', '', '', '', '', ''
 
-    def geraGraficoMes(self, mes, ano):
+    def geraGraficoMes(self, mes, ano, texto=False):
         try:
             test_date = datetime(ano, mes, 1)
             ultimo_dia_mes = calendar.monthrange(
@@ -288,15 +291,18 @@ class Operacoes:
             plt.xlabel(f"Dia do mes {mes}")
             plt.ylabel("Valor Total do dia")
             # plt.savefig('grafico.jpg', dpi=200)
-            plt.show()
+            if texto:
+                plt.savefig('GraficoMes.jpg')
+            else:
+                plt.show()
 
-            return True
+            return df.loc[:, ['DIA', 'VENDA', 'CANCELADO']]
 
         except Exception as e:
             print(e)
             return False
 
-    def geraGraficoAno(self, ano):
+    def geraGraficoAno(self, ano, texto=False):
         try:
 
             # Executar a consulta SQL para obter as vendas diárias
@@ -307,7 +313,7 @@ class Operacoes:
             self.cursor.execute(
                 "SELECT replace(data,'-','/'), total_compra FROM vendas where ativo = 'CANCELADO'")
             dados_cancelado = self.cursor.fetchall()
-            print(dados_ativo)
+
             #################### ATIVO ########################################
             # cria um dataframe
             df = pd.DataFrame(dados_ativo, columns=['DATA', 'VENDA'])
@@ -335,7 +341,7 @@ class Operacoes:
                 #     df_final = pd.concat([df_final, df_tempc])
 
             df_final['DATA'] = df_final.index
-            print(df_final)
+
             # ############# GRAFICO ##################################################
 
             fig, ax = plt.subplots()
@@ -362,13 +368,16 @@ class Operacoes:
             plt.xlabel(f"Mes")
             plt.ylabel("Valor Total do mes")
             # plt.savefig('grafico.jpg', dpi=200)
-            plt.show()
+            if texto:
+                plt.savefig('GraficoAno.jpg')
+            else:
+                plt.show()
 
-            return True
+            return df_final
         except Exception as e:
             print(e)
 
-    def geraGraficoTipo(self, mes, ano):
+    def geraGraficoTipo(self, mes, ano, texto=False):
         try:
             test_date = datetime(ano, mes, 1)
             ultimo_dia_mes = calendar.monthrange(
@@ -400,7 +409,6 @@ class Operacoes:
             # cria uma nova coluna
             df['DIA'] = df.index
             df['DIA'] = df['DIA'].astype(str).apply(lambda x: x[8:])
-            print(df)
 
             ############# GRAFICO ##################################################
 
@@ -411,13 +419,187 @@ class Operacoes:
             plt.title(f"Venda por forma de pagamento no mês {mes}/{ano}")
             plt.xlabel(f"")
             plt.ylabel('')
-            plt.show()
+            if texto:
+                plt.savefig('GraficoTipo.jpg')
+            else:
+                plt.show()
 
-            return True
+            return df
 
         except Exception as e:
             print(e)
             return False
+
+    def criaExcel(self, planilha):
+        import openpyxl
+        from datetime import date
+        import pandas as pd
+        from openpyxl import Workbook
+        from openpyxl.chart import LineChart, Reference, BarChart
+        from openpyxl.styles import Font
+
+        data_e_hora_atuais = datetime.now()
+        data_atual = date.today()
+        mes = data_e_hora_atuais.strftime('%m')
+        ano = data_e_hora_atuais.strftime('%Y')
+
+        # cria a planilha
+        workbook = Workbook()
+        workbook.save(planilha)
+
+############################### resumo ############################################################################################
+        aba = workbook.active
+        aba.title = 'RESUMO'
+
+        aba.column_dimensions['A'].width = 20
+        aba.column_dimensions['B'].width = 20
+
+        aba.insert_rows(1)
+        aba.merge_cells('A1:B1')
+        aba.cell(row=1, column=1).value = f'VENDA MES/MES DO ANO {ano}'
+        aba[f"A2"] = 'MES REFERENCIA'
+        aba[f"B2"] = 'VENDA R$'
+        result = operacoes.geraGraficoAno(ano, texto=True)
+        # gravar na planilha
+
+############################### usuarios ############################################################################################
+        aba = workbook.create_sheet(title="Usuarios")
+        aba.insert_rows(1)
+
+        aba[f"A1"] = 'ATIVO'
+        aba[f"B1"] = 'LOGIN'
+        aba[f"C1"] = 'NOME'
+        aba[f"D1"] = 'CPF'
+        aba[f"E1"] = 'FUNCAO'
+
+        coluna = ['A', 'B', 'C', 'D', 'E']
+
+        # negrito no titulo da coluna
+        for i in range(len(coluna)):
+            aba.cell(row=1, column=i+1).font = Font(bold=True)
+
+        resultado = operacoes.listar_tudo(tabela='usuarios', tudo=True)
+
+        # escreve os dados
+        contador = 2
+        for i in resultado:
+            aba.insert_rows(contador)
+            item = 0
+            for x in coluna:
+                if x == 'C':
+                    item += 1
+                    aba[f"{x}{contador}"] = i[item]
+                else:
+                    if x == 'A':
+                        if i[item] == 1:
+                            aba[f"{x}{contador}"] = 'ATIVO'
+                        else:
+                            aba[f"{x}{contador}"] = 'INATIVO'
+                    else:
+                        aba[f"{x}{contador}"] = i[item]
+                item += 1
+            contador += 1
+
+        # dimensiona as colunas
+        aba.auto_filter.ref = aba.dimensions
+        aba.column_dimensions['B'].width = 20
+        aba.column_dimensions['C'].width = 50
+        aba.column_dimensions['D'].width = 15
+        aba.column_dimensions['E'].width = 15
+        aba.column_dimensions['F'].width = 15
+        aba.column_dimensions['G'].width = 15
+
+
+############################### produtos ############################################################################################
+        aba = workbook.create_sheet(title="Estoque")
+        aba.insert_rows(1)
+
+        aba[f"A1"] = 'ATIVO'
+        aba[f"B1"] = 'EAN'
+        aba[f"C1"] = 'PRODUTO'
+        aba[f"D1"] = 'ESTOQUE'
+        aba[f"E1"] = 'PREÇO CUSTO'
+        aba[f"F1"] = 'PREÇO VENDA'
+        aba[f"G1"] = 'ULTIMA VENDA'
+        coluna = ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+
+        # negrito no titulo da coluna
+        for i in range(len(coluna)):
+            aba.cell(row=1, column=i+1).font = Font(bold=True)
+
+        resultado = operacoes.listar_tudo(tabela='produtos', tudo=True)
+
+        # escreve os dados
+        contador = 2
+        for i in resultado:
+            aba.insert_rows(contador)
+            item = 1
+            for x in coluna:
+                if x == 'A':
+                    if i[item] == 1:
+                        aba[f"{x}{contador}"] = 'ATIVO'
+                    else:
+                        aba[f"{x}{contador}"] = 'INATIVO'
+                else:
+                    aba[f"{x}{contador}"] = i[item]
+                item += 1
+            contador += 1
+
+        # dimensiona as colunas
+        aba.auto_filter.ref = aba.dimensions
+        aba.column_dimensions['B'].width = 20
+        aba.column_dimensions['C'].width = 50
+        aba.column_dimensions['D'].width = 15
+        aba.column_dimensions['E'].width = 15
+        aba.column_dimensions['F'].width = 15
+        aba.column_dimensions['G'].width = 15
+
+ ############################### vendas ############################################################################################
+        aba = workbook.create_sheet(title="Cupons")
+
+        aba.insert_rows(1)
+
+        aba[f"A1"] = 'COO'
+        aba[f"B1"] = 'ATIVO'
+        aba[f"C1"] = 'DATA'
+        aba[f"D1"] = 'ITENS'
+        aba[f"E1"] = 'TOTAL'
+        aba[f"F1"] = 'FORMA PAGTO'
+        aba[f"G1"] = 'VALOR PAGO'
+        aba[f"H1"] = 'TROCO'
+        aba[f"I1"] = 'OPERADOR'
+        coluna = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
+
+        # negrito no titulo da coluna
+        for i in range(len(coluna)):
+            aba.cell(row=1, column=i+1).font = Font(bold=True)
+
+        resultado = operacoes.listar_tudo(tabela='vendas', tudo=True)
+
+        # escreve os dados
+        contador = 2
+        for i in resultado:
+            aba.insert_rows(contador)
+            item = 0
+            for x in coluna:
+                aba[f"{x}{contador}"] = i[item]
+
+                item += 1
+            contador += 1
+
+        # dimensiona as colunas
+        aba.auto_filter.ref = aba.dimensions
+        aba.column_dimensions['B'].width = 15
+        aba.column_dimensions['C'].width = 20
+        aba.column_dimensions['D'].width = 30
+        aba.column_dimensions['E'].width = 15
+        aba.column_dimensions['F'].width = 20
+        aba.column_dimensions['G'].width = 20
+        aba.column_dimensions['H'].width = 20
+        aba.column_dimensions['I'].width = 20
+
+        # grava a planilha
+        workbook.save(filename=planilha)
 
 
 if __name__ == "__main__":
@@ -429,4 +611,7 @@ if __name__ == "__main__":
         operacoes = Operacoes('..\\DB\\dbase.db')
         foto = 'img\\tela.jpg'
 
-    print(operacoes.geraGraficoTipo(2, 2023))
+    print(operacoes.criaExcel('excel.xlsx'))
+    # print(operacoes.geraGraficoAno(2023, texto=True))
+    # print(operacoes.geraGraficoMes(2, 2023, texto=True))
+    # print(operacoes.geraGraficoTipo(2, 2023, texto=True))
