@@ -460,6 +460,19 @@ class Operacoes:
         aba[f"A2"] = 'MES REFERENCIA'
         aba[f"B2"] = 'VENDA R$'
         result = operacoes.geraGraficoAno(ano, texto=True)
+        result = result[['DATA', 'VENDA']]
+        result = result.values.tolist()
+        print(type(result))
+        coluna = ['A', 'B']
+        contador = 3
+        for i in result:
+            aba.insert_rows(contador)
+            item = 0
+            for x in coluna:
+                aba[f"{x}{contador}"] = i[item]
+                item += 1
+            contador += 1
+
         # gravar na planilha
 
 ############################### usuarios ############################################################################################
@@ -479,7 +492,7 @@ class Operacoes:
             aba.cell(row=1, column=i+1).font = Font(bold=True)
 
         resultado = operacoes.listar_tudo(tabela='usuarios', tudo=True)
-
+        print(type(resultado))
         # escreve os dados
         contador = 2
         for i in resultado:

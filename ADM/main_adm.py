@@ -319,8 +319,8 @@ class Novo(QMainWindow, Ui_MainWindow):
         self.bt_mesames.clicked.connect(lambda: self.exibeCamposOcultos('mes'))
         self.bt_portipo.clicked.connect(
             lambda: self.exibeCamposOcultos('tip'))
-        # self.bt_geraexcel.clicked.connect(
-        #     lambda: self.exibeCamposOcultos('excel'))
+        self.bt_geraexcel.clicked.connect(
+            lambda: self.exibeCamposOcultos('excel'))
 
     # 2 relatorio
     def exibeCamposOcultos(self, tipo):
@@ -337,6 +337,7 @@ class Novo(QMainWindow, Ui_MainWindow):
 
             self.bt_gerar_dia.clicked.connect(lambda: self.vendasProcessaImagem(mes=int(
                 self.ed_periodo.text().split('/')[0]), ano=int(self.ed_periodo.text().split('/')[1])))
+
         elif tipo == 'mes':
             self.lbl_info.setText(
                 'Por Mes: Digite no campo abaixo o ano desejado Ex: 2023')
@@ -363,6 +364,8 @@ class Novo(QMainWindow, Ui_MainWindow):
             self.ed_periodo.setFocus()
             self.bt_gerar_tipo.clicked.connect(lambda: self.vendasProcessaImagem(mes=int(
                 self.ed_periodo.text().split('/')[0]), ano=int(self.ed_periodo.text().split('/')[1]), tipo='sim'))
+        elif tipo == 'excel':
+            print('exc')
 
     # 3 relatorio
     def vendasProcessaImagem(self, mes=False, ano=False, tipo=False):
