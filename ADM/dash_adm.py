@@ -20,11 +20,11 @@ app = Dash(__name__)
 
 # assume you have a "long-form" data frame
 # see https://plotly.com/python/px-arguments/ for more options
-conn = sqlite3.connect('..\\DB\\dbase.db')
+conn = sqlite3.connect('../DB/dbase.db')
 categorias = ['produtos', 'vendas', 'usuarios']
 
 # cria o dataframe de vendas
-df = pd.read_sql_query("SELECT * FROM vendas where ativo = 'SIM'", conn)
+df = pd.read_sql_query("SELECT * FROM vendas ", conn)
 df["total_compra"] = pd.to_numeric(df["total_compra"])
 df['data'] = pd.to_datetime(df['data'], format="%d-%m-%Y %H:%M:%S")
 
@@ -37,48 +37,55 @@ opcoes.append('Todos')
 # monta a pagina
 app.layout = html.Div(children=[
     html.P(children='##### SiSVendas 2023 #####', style={
-        'textAlign': 'center', 'fontSize': '60px', 'color': '#7FDBFF'}),
+        'textAlign': 'center', 'fontSize': '30px', }),
 
 
     html.H2(id='assunto',
-            children='Vendas por Operador/data em R$', style={'textAlign': 'center', 'color': '#7FDBFF'}),
+            children='Vendas por Operador/data em R$', style={'textAlign': 'center', }),
 
     html.Div(children=[
-        html.H2('Tipo de Grafico',
-                style={'display': 'inline-block', 'fontSize': '24px'}),
-        dcc.RadioItems(id='seletor_grafico', options=[
-            'Vendas', 'Forma Pagamento', ], value='Vendas',
-            style={'display': 'inline-block', 'fontSize': '24px', 'padding': 10, 'flex': 1}),
+        html.Div(children=[
+            html.P('Tipo de Grafico',
+                   style={'display': 'inline-block', }),
+            dcc.RadioItems(id='seletor_grafico', options=[
+                'VENDIDO', 'CANCELADO', ], value='Vendas', style={'display': 'flex'}
+            ),
+        ], style={'display': 'inline-block',  'padding-right': 20, 'height': '90px',  'vertical-align': 'top'}),
+        html.Div(children=[
+            html.P(children='Selecione o período: '),
+            dcc.DatePickerRange(
+                id='date_filter',
+                start_date=date(int(ano), int(mes), 1),
+                end_date=date(int(ano), int(mes), int(ultimodia)),
+                display_format='D-M-Y', style={}),
+        ], style={'display': 'inline-block', 'height': '90px', }),
+        html.Div(children=[
+            html.P(children='Selecione o Operador: ',
+                   ),
+            dcc.Dropdown(opcoes, value='Todos',
+                         id='dropdown_lista_operador', clearable=False),
+        ], style={'display': 'inline-block',  'padding-left': 30, 'height': '90px', 'vertical-align': 'top'}),
         html.Br(),
-        html.H2(children='Selecione o período: ',
-                style={'display': 'inline-block', 'fontSize': '24px'}),
-        dcc.DatePickerRange(
-            id='date_filter',
-            start_date=date(int(ano), int(mes), 1),
-            end_date=date(int(ano), int(mes), int(ultimodia)),
-            display_format='D-M-Y', style={'vertical-align': 'top'}),
-        html.Br(),
-        html.H2(children='Selecione o Operador: ',
-                style={'display': 'inline-block', 'fontSize': '24px'}),
-        dcc.Dropdown(opcoes, value='Todos', id='dropdown_lista_operador', style={
-            'display': 'inline-block', 'width': '300px', 'height': '42px',  'fontSize': '24px'}),
-
-    ], style={'textAlign': 'center', }),
-
+        dcc.Graph(
+            id='grafico_quantidade_vendas',
+            style={'display': 'inline-block',
+                   'width': '70%', 'textAlign': 'center'}
+        ), dcc.Graph(
+            id='grafico_quantidade_tipo',
+            style={'display': 'inline-block',
+                   'width': '30%', 'textAlign': 'center'}
+        )
+    ], style={'padding-bottom': 20, 'background-color': '#7B4831',  'vertical-align': 'top',  "textAlign": "center"}),
+    html.Br(),
     html.Button('Filtrar', id='bt_enviar', n_clicks=0),
-    dcc.Graph(
-        id='grafico_quantidade_vendas',
-        figure=fig,
-        responsive=True,
-        animate=True,
-        style={'width': '900px', }
-    ),
 
-], style={'background-color': '#7FDBFF'})
+
+], style={'background-color': '#491A06', 'width': '90%', 'height': '100%',   "textAlign": "center", "border-style": "dotted"})
 
 
 @ app.callback(
     Output('grafico_quantidade_vendas', 'figure'),
+    Output('grafico_quantidade_tipo', 'figure'),
     Input('dropdown_lista_operador', 'value'),
     Input("date_filter", "start_date"),
     Input("date_filter", "end_date"),
@@ -90,57 +97,45 @@ def update_output(value, start_date, end_date, tipo, botao):
     # print(f'{start_date=}, {end_date=}, {tipo=}, {botao=}')
     # start_date = pd.to_datetime(start_date) - timedelta(days=1)
     end_date = pd.to_datetime(end_date) + timedelta(days=1)
-    print(f'{start_date=}, {end_date=}')
+    print(f'{start_date=}, {end_date=}, {tipo=}, {value=}')
+    ultimo = str(end_date)[:10]
+    situacao = 'SIM'
+    if tipo == 'VENDIDO':
+        situacao = 'SIM'
+    else:
+        situacao = 'CANCELADO'
 
-    if tipo == 'Vendas':
-        if value == "Todos":
-            # pesquisa por datas
-            tabela_atualizada = df.loc[df["data"].between(pd.to_datetime(
-                start_date), pd.to_datetime(end_date))]
-            tabela_atualizada = tabela_atualizada.loc[(tabela_atualizada['ativo']
-                                                       == 'SIM'), :]
-            # modifica para data simples
-            tabela_atualizada['data'] = tabela_atualizada['data'].dt.strftime(
-                '%d-%m-%Y')
-            # print(tabela_atualizada.info())
-
-            fig = px.bar(tabela_atualizada, x="data", y="total_compra",
-                         color="operador", barmode="group")
-
-        else:
-            # pesquisa por datas
-            tabela_atualizada = df.loc[df["data"].between(pd.to_datetime(
-                start_date), pd.to_datetime(end_date))]
-
-            # modifica para data simples
-            tabela_atualizada['data'] = tabela_atualizada['data'].dt.strftime(
-                '%d-%m-%Y')
-
-            # filtra por operador
-            tabela_atualizada = tabela_atualizada.loc[((tabela_atualizada['operador']
-                                                      == value) & (tabela_atualizada['ativo']
-                                                                   == 'SIM')), :]
-            print(tabela_atualizada)
-            # print(tabela_atualizada)
-            fig = px.bar(tabela_atualizada, x="data", y="total_compra",
-                         color="operador", barmode="group")
-
-    elif tipo == 'Forma Pagamento':
-        # if value == "Todos":
-        tabela_atualizada = df.loc[df["data"].between(pd.to_datetime(
-            start_date), pd.to_datetime(end_date))]
+    # pesquisa por datas
+    tabela_atualizada = df.loc[df["data"].between(pd.to_datetime(
+        start_date), pd.to_datetime(end_date))]
+    print(tabela_atualizada)
+    if value == 'Todos':
         tabela_atualizada = tabela_atualizada.loc[(tabela_atualizada['ativo']
-                                                   == 'SIM'), :]
-        tabela_atualizada['data'] = tabela_atualizada['data'].dt.strftime(
-            '%d-%m-%Y')
-        print(tabela_atualizada)
-        print(f'{start_date=}, {end_date=}, {tipo=}, {botao=}')
-        fig = px.pie(tabela_atualizada,
-                     values='total_compra',
-                     names='forma_pagamento',
-                     hole=.3,)
+                                                   == situacao), :]
+    else:
+        tabela_atualizada = tabela_atualizada.loc[((tabela_atualizada['operador']
+                                                    == value) & (tabela_atualizada['ativo']
+                                                                 == situacao)), :]
+    # modifica para data simples
+    tabela_atualizada['data'] = tabela_atualizada['data'].dt.strftime(
+        '%d-%m-%Y')
+    # tabela_atualizada =tabela_atualizada.groupby("DIA")['CANCELADO'].sum()
 
-    return fig
+    tabela_atualizada_vendas = tabela_atualizada.rename(
+        columns={'total_compra': 'Venda por Dia em R$', 'data': 'Periodo'})
+    fig = px.bar(tabela_atualizada_vendas, x="Periodo", y="Venda por Dia em R$", title=f'Vendas em R$ no Periodo de {start_date} á {ultimo}',
+                 color="operador")
+
+    tabela_atualizada_tipo = tabela_atualizada.rename(
+        columns={'total_compra': 'Venda em R$', 'forma_pagamento': 'Tipo'})
+    print(tabela_atualizada)
+    fig1 = px.pie(tabela_atualizada_tipo,
+                  values='Venda em R$',
+                  names='Tipo',
+                  title=f'Vendas por tipo de pagamento'
+                  )
+
+    return fig, fig1
 
 
 if __name__ == '__main__':
