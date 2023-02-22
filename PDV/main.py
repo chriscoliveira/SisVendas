@@ -23,12 +23,16 @@ else:
     foto = '..\\img\\tela.jpg'
     acesso = Acesso('..\\DB\\dbase.db')
 
+
 data_e_hora_atuais = datetime.now()
 data_atual = date.today()
 data = data_e_hora_atuais.strftime('%d-%m-%Y %H:%M:%S')
 datasimples = data_e_hora_atuais.strftime('%d-%m-%Y')
 mes = data_e_hora_atuais.strftime('%m')
 ano = data_e_hora_atuais.strftime('%Y')
+styloFrame = '''
+        background-color: rgb(63, 53, 26);
+        '''
 
 
 class Novo(QMainWindow, Ui_MainWindow):
@@ -43,6 +47,28 @@ class Novo(QMainWindow, Ui_MainWindow):
         self.frame_logout.hide()
         self.frame_cancelaCupom.hide()
         self.frame_reducaoz.hide()
+
+        # carrega a imagem do logo
+        pixmap = QPixmap('logo.png')
+        self.lbl_pic.setPixmap(pixmap)
+        self.setStyleSheet('''
+    
+            QMainWindow {
+            background-color: rgb(52, 40, 0);
+            }
+            QLabel{
+            color: rgb(175, 137, 10);
+            }
+            QMessageBox{
+            color: rgb(255, 255, 255);
+            }
+            ''')
+
+        self.frame_login.setStyleSheet(styloFrame)
+        self.frame_logout.setStyleSheet(styloFrame)
+        self.frame_cancelaCupom.setStyleSheet(styloFrame)
+        self.frame_reducaoz.setStyleSheet(styloFrame)
+        self.frame_subtotal.setStyleSheet(styloFrame)
 
         # duplo clique na lista cancela o item
         self.lst_itens.itemDoubleClicked.connect(
@@ -351,6 +377,7 @@ class Novo(QMainWindow, Ui_MainWindow):
                 self.txt_ean.setText('')
 
     # finaliza o cupom grava no bando e libera uma proxima compra
+
     def fechaCupom(self, total, pago, troco, forma):
         itens = operacoes.agrupaItensTmp()
         total = str(total).replace('R$ ', '')
@@ -408,7 +435,6 @@ class Novo(QMainWindow, Ui_MainWindow):
             if valores[1] == 'SIM':
                 ret = QMessageBox.question(
                     self, 'ATENÇÃO!!!', f"Tem certeza que deseja cupom o item:\nCOO = {valores[0]}, Total do cupom = {valores[4]}", QMessageBox.Yes | QMessageBox.Cancel)
-
                 if ret == QMessageBox.Yes:
                     self.autorizacaoCancelamento(valores[0])
 

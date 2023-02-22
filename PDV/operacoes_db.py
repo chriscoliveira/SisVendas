@@ -8,12 +8,28 @@ from datetime import date, datetime
 sistema = sys.platform
 if sistema == 'linux':
     nome_cupom = 'CUPOM/cupom_'
-    porta_com = '/dev/ttyACM0'
+    # porta_com = '/dev/ttyACM0'
     banco = '../DB/dbase.db'
+
+    with open('../PDV/CONFIG/config.cfg', 'r')as cfg:
+        itens = cfg.readlines()
+        for i in itens:
+            if 'porta_comLinux' in i:
+                porta_com = i.split('=')[1]
 else:
+    print('windows')
     nome_cupom = 'CUPOM\\cupom_'
-    porta_com = 'COM1'
+    # porta_com = 'COM4'
     banco = '..\\DB\\dbase.db'
+
+    with open('CONFIG\\config.cfg', 'r')as cfg:
+        itens = cfg.readlines()
+        for i in itens:
+
+            if i.startswith('porta_comWindows'):
+                print(i)
+                porta_com = i.split('=')[1]
+    print(porta_com)
 
 data_e_hora_atuais = datetime.now()
 data_atual = date.today()
@@ -351,7 +367,8 @@ class Operacoes:
             ser.write(text.encode())
 
             return f'{nome_cupom}.txt'
-        except:
+        except Exception as e:
+            print(e)
             return False
 
     def saiOperadorz(self, data, operador):

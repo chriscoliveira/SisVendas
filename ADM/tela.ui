@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>3164</width>
+    <width>1144</width>
     <height>820</height>
    </rect>
   </property>
@@ -27,7 +27,7 @@
        <widget class="QFrame" name="frame_modulo_produtos">
         <property name="minimumSize">
          <size>
-          <width>800</width>
+          <width>100</width>
           <height>600</height>
          </size>
         </property>
@@ -229,7 +229,7 @@
        <widget class="QFrame" name="frame_modulo_login">
         <property name="minimumSize">
          <size>
-          <width>800</width>
+          <width>100</width>
           <height>600</height>
          </size>
         </property>
@@ -398,7 +398,7 @@
        <widget class="QFrame" name="frame_logout">
         <property name="minimumSize">
          <size>
-          <width>400</width>
+          <width>100</width>
           <height>300</height>
          </size>
         </property>
@@ -490,7 +490,7 @@ Digite o usuario</string>
        <widget class="QFrame" name="frame_cupom">
         <property name="minimumSize">
          <size>
-          <width>420</width>
+          <width>100</width>
           <height>600</height>
          </size>
         </property>
@@ -833,8 +833,8 @@ Digite o usuario</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>3164</width>
-     <height>22</height>
+     <width>1144</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuSubTotal">

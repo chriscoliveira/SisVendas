@@ -14,18 +14,30 @@ from acesso import *
 from datetime import *
 
 sistema = sys.platform
+
 if sistema == 'linux':
     operacoes = Operacoes('../DB/dbase.db')
     acesso = Acesso('../DB/dbase.db')
     foto = '../img/tela.jpg'
-    cupom2 = '..//PDV//CONFIG//cupom2.txt'
-    cupom1 = '..//PDV//CONFIG//cupom1.txt'
+    cupom2 = '../PDV/CONFIG/cupom2.txt'
+    cupom1 = '../PDV/CONFIG/cupom1.txt'
+    with open('../PDV/CONFIG/config.cfg', 'r')as cfg:
+        itens = cfg.readlines()
+        for i in itens:
+            if 'porta_comLinux' in i:
+                porta_com = i.split('=')[1]
 else:
     operacoes = Operacoes('..\\DB\\dbase.db')
     foto = '..\\img\\tela.jpg'
     cupom2 = '..\\PDV\\CONFIG\\cupom2.txt'
     cupom1 = '..\\PDV\\CONFIG\\cupom1.txt'
     acesso = Acesso('..\\DB\\dbase.db')
+    with open('..\\PDV\\CONFIG\\config.cfg', 'r')as cfg:
+        itens = cfg.readlines()
+        for i in itens:
+            if i.startswith('porta_comWindows'):
+                print(i)
+                porta_com = i.split('=')[1]
 
 data_e_hora_atuais = datetime.now()
 data_atual = date.today()
@@ -41,11 +53,9 @@ class Novo(QMainWindow, Ui_MainWindow):
 
         self.moduloAtivo = 'login'
 
-        # self.resize(self.sizeHint().width,self.size().height() + content.sizeHint().height());
-        # self.gridLayout_4.setAlignment()
         self.frame_modulo_login.hide()
         self.frame_modulo_produtos.hide()
-        self.frame_logout.show()
+        self.frame_logout.hide()
         self.frame_cupom.hide()
         self.frame_vendas.hide()
 
@@ -112,6 +122,7 @@ class Novo(QMainWindow, Ui_MainWindow):
             self.moduloAtivo = 'produtos'
             self.frame_modulo_produtos.show()
             self.frame_modulo_produtos.move(50, 50)
+            self.frame_logout.hide()
             self.frame_modulo_login.hide()
             self.frame_cupom.hide()
             self.frame_vendas.hide()
@@ -156,7 +167,8 @@ class Novo(QMainWindow, Ui_MainWindow):
     # retorna todos os produtos
     def retornaProdutos(self):
         self.lst_produtos.clear()
-        retorno = operacoes.listar_tudo(tabela='produtos')
+        retorno = operacoes.listar_tudo(tabela='produtos', tudo=True)
+
         if retorno:
             for i in retorno:
                 # print(i[1])
@@ -364,8 +376,14 @@ class Novo(QMainWindow, Ui_MainWindow):
             self.ed_periodo.setFocus()
             self.bt_gerar_tipo.clicked.connect(lambda: self.vendasProcessaImagem(mes=int(
                 self.ed_periodo.text().split('/')[0]), ano=int(self.ed_periodo.text().split('/')[1]), tipo='sim'))
+
         elif tipo == 'excel':
-            print('exc')
+            self.ed_periodo.setVisible(False)
+            self.bt_gerar_excel.setVisible(False)
+            self.bt_gerar_tipo.setVisible(False)
+            self.bt_gerar_dia.setVisible(False)
+            self.bt_gerar_ano.setVisible(False)
+            operacoes.criaExcel('excel.xlsx')
 
     # 3 relatorio
     def vendasProcessaImagem(self, mes=False, ano=False, tipo=False):

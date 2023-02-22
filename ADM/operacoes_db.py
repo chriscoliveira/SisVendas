@@ -1,13 +1,16 @@
 import sqlite3
 from time import sleep
-import os
-import re
 import sys
 from datetime import datetime
 import calendar
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+from datetime import date
+import pandas as pd
+from openpyxl import Workbook
+from openpyxl.chart import LineChart, Reference, BarChart
+from openpyxl.styles import Font
 
 sistema = sys.platform
 if sistema == 'linux':
@@ -76,15 +79,18 @@ class Operacoes:
 
     def listar_tudo(self, tabela, tudo=False):
         itens = []
+        sql = ''
         if tudo:
             sql = "SELECT * FROM "+tabela
         else:
             sql = "SELECT ean,produto,valor FROM "+tabela
+        print(tudo, sql)
         self.cursor.execute(sql)
         contador = 0
         for linha in self.cursor.fetchall():
             contador += 1
             itens.append(linha)
+            print(itens)
         return itens
 
     def buscarProduto(self, termo):
@@ -431,12 +437,6 @@ class Operacoes:
             return False
 
     def criaExcel(self, planilha):
-        import openpyxl
-        from datetime import date
-        import pandas as pd
-        from openpyxl import Workbook
-        from openpyxl.chart import LineChart, Reference, BarChart
-        from openpyxl.styles import Font
 
         data_e_hora_atuais = datetime.now()
         data_atual = date.today()
@@ -447,33 +447,6 @@ class Operacoes:
         workbook = Workbook()
         workbook.save(planilha)
 
-############################### resumo ############################################################################################
-        aba = workbook.active
-        aba.title = 'RESUMO'
-
-        aba.column_dimensions['A'].width = 20
-        aba.column_dimensions['B'].width = 20
-
-        aba.insert_rows(1)
-        aba.merge_cells('A1:B1')
-        aba.cell(row=1, column=1).value = f'VENDA MES/MES DO ANO {ano}'
-        aba[f"A2"] = 'MES REFERENCIA'
-        aba[f"B2"] = 'VENDA R$'
-        result = operacoes.geraGraficoAno(ano, texto=True)
-        result = result[['DATA', 'VENDA']]
-        result = result.values.tolist()
-        print(type(result))
-        coluna = ['A', 'B']
-        contador = 3
-        for i in result:
-            aba.insert_rows(contador)
-            item = 0
-            for x in coluna:
-                aba[f"{x}{contador}"] = i[item]
-                item += 1
-            contador += 1
-
-        # gravar na planilha
 
 ############################### usuarios ############################################################################################
         aba = workbook.create_sheet(title="Usuarios")
@@ -491,8 +464,8 @@ class Operacoes:
         for i in range(len(coluna)):
             aba.cell(row=1, column=i+1).font = Font(bold=True)
 
-        resultado = operacoes.listar_tudo(tabela='usuarios', tudo=True)
-        print(type(resultado))
+        resultado = self.listar_tudo(tabela='usuarios', tudo=True)
+
         # escreve os dados
         contador = 2
         for i in resultado:
@@ -540,7 +513,7 @@ class Operacoes:
         for i in range(len(coluna)):
             aba.cell(row=1, column=i+1).font = Font(bold=True)
 
-        resultado = operacoes.listar_tudo(tabela='produtos', tudo=True)
+        resultado = self.listar_tudo(tabela='produtos', tudo=True)
 
         # escreve os dados
         contador = 2
@@ -575,20 +548,22 @@ class Operacoes:
         aba[f"A1"] = 'COO'
         aba[f"B1"] = 'ATIVO'
         aba[f"C1"] = 'DATA'
-        aba[f"D1"] = 'ITENS'
-        aba[f"E1"] = 'TOTAL'
-        aba[f"F1"] = 'FORMA PAGTO'
-        aba[f"G1"] = 'VALOR PAGO'
-        aba[f"H1"] = 'TROCO'
-        aba[f"I1"] = 'OPERADOR'
-        coluna = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I']
+        aba[f"D1"] = 'HORA'
+        aba[f"E1"] = 'ITENS'
+        aba[f"F1"] = 'TOTAL'
+        aba[f"G1"] = 'FORMA PAGTO'
+        aba[f"H1"] = 'VALOR PAGO'
+        aba[f"I1"] = 'TROCO'
+        aba[f"J1"] = 'OPERADOR'
+        coluna = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
 
         # negrito no titulo da coluna
         for i in range(len(coluna)):
             aba.cell(row=1, column=i+1).font = Font(bold=True)
 
-        resultado = operacoes.listar_tudo(tabela='vendas', tudo=True)
-
+        resultado = self.listar_tudo(tabela='vendas', tudo=True)
+        for i in resultado:
+            print(i)
         # escreve os dados
         contador = 2
         for i in resultado:
@@ -624,7 +599,8 @@ if __name__ == "__main__":
         operacoes = Operacoes('..\\DB\\dbase.db')
         foto = 'img\\tela.jpg'
 
-    print(operacoes.criaExcel('excel.xlsx'))
+    # print(operacoes.criaExcel('excel.xlsx'))
+    # print(operacoes.listar_tudo(tabela='produtos'))
     # print(operacoes.geraGraficoAno(2023, texto=True))
     # print(operacoes.geraGraficoMes(2, 2023, texto=True))
     # print(operacoes.geraGraficoTipo(2, 2023, texto=True))

@@ -4,18 +4,25 @@ ENDERECO DO LOCAL, NUMERO, BAIRRO, CIDADE
 CEP 12306-090
 CNPJ 01.157.555/0021-58
 -----------------------------------------
-             FIM DO DIA
+            EXTRATO No. 78
         CUPOM SEM VALOR FISCAL
 -----------------------------------------
-VENDAS EFETUADAS
-	CREDITO R$26.01
-	DINHEIRO R$17.67
-
-VENDAS CANCELADAS
-	PIX R$9.00
-
-
-
-	CHRISTIAN
+1 CERVEJA SKOL
+        5 X 8.67 = R$43.35
+789 HOTDOG
+        3 X 7.50 = R$22.50
 -----------------------------------------
-	07-02-2023 13:09:21
+
+TOTAL R$65.85
+FORMA PAGTO DEBITO R$65.85
+TROCO R$0.00
+
+DATA 21-02-2023 08:47:22
+
+-----------------------------------------
+             VOLTE SEMPRE
+SEU BOM NEGÓCIO COMEÇA AQUI
+
+
+
+.

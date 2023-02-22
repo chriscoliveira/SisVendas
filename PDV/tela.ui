@@ -7,11 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>1522</width>
-    <height>1237</height>
+    <height>1743</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>SisVendas 2023</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_8">
@@ -40,6 +43,9 @@
               <font>
                <pointsize>30</pointsize>
               </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(255, 255, 255);</string>
              </property>
              <property name="text">
               <string/>
@@ -84,6 +90,9 @@
                <pointsize>15</pointsize>
               </font>
              </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(255, 255, 255);</string>
+             </property>
             </widget>
            </item>
            <item row="5" column="1" colspan="4">
@@ -114,6 +123,9 @@
                <italic>false</italic>
                <bold>true</bold>
               </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(255, 255, 255);</string>
              </property>
              <property name="text">
               <string>TextLabel</string>
@@ -153,6 +165,20 @@
              <item>
               <layout class="QVBoxLayout" name="verticalLayout_5">
                <item>
+                <widget class="QLabel" name="lbl_pic">
+                 <property name="text">
+                  <string/>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayout_4">
+               <property name="sizeConstraint">
+                <enum>QLayout::SetMaximumSize</enum>
+               </property>
+               <item>
                 <widget class="QFrame" name="frame_login">
                  <property name="minimumSize">
                   <size>
@@ -167,7 +193,7 @@
                   </size>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">background-color: rgb(195, 195, 195);</string>
+                  <string notr="true">background-color: rgb(195, 195, 195);background-color: rgb(0, 85, 127);</string>
                  </property>
                  <property name="frameShape">
                   <enum>QFrame::StyledPanel</enum>
@@ -184,6 +210,9 @@
                        <font>
                         <pointsize>16</pointsize>
                        </font>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
                       </property>
                       <property name="text">
                        <string>Entrada de Operador
@@ -209,6 +238,9 @@ Digite o usuario</string>
                        <font>
                         <pointsize>16</pointsize>
                        </font>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
                       </property>
                       <property name="text">
                        <string>Digite a senha</string>
@@ -240,6 +272,9 @@ Digite o usuario</string>
                         <pointsize>14</pointsize>
                        </font>
                       </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
+                      </property>
                       <property name="text">
                        <string>ENVIAR</string>
                       </property>
@@ -265,7 +300,7 @@ Digite o usuario</string>
                   </size>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">background-color: rgb(195, 195, 195);</string>
+                  <string notr="true">background-color: rgb(0, 85, 127);</string>
                  </property>
                  <property name="frameShape">
                   <enum>QFrame::StyledPanel</enum>
@@ -282,6 +317,9 @@ Digite o usuario</string>
                        <font>
                         <pointsize>16</pointsize>
                        </font>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
                       </property>
                       <property name="text">
                        <string>Saida de Operador
@@ -308,6 +346,9 @@ Digite o usuario</string>
                         <pointsize>16</pointsize>
                        </font>
                       </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
+                      </property>
                       <property name="text">
                        <string>Digite a senha</string>
                       </property>
@@ -331,6 +372,9 @@ Digite o usuario</string>
                        <font>
                         <pointsize>14</pointsize>
                        </font>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
                       </property>
                       <property name="text">
                        <string>ENVIAR</string>
@@ -357,7 +401,7 @@ Digite o usuario</string>
                   </size>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">background-color: rgb(195, 195, 195);</string>
+                  <string notr="true">background-color: rgb(0, 85, 127);</string>
                  </property>
                  <property name="frameShape">
                   <enum>QFrame::StyledPanel</enum>
@@ -374,6 +418,9 @@ Digite o usuario</string>
                        <font>
                         <pointsize>16</pointsize>
                        </font>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
                       </property>
                       <property name="text">
                        <string>Fim do dia
@@ -400,6 +447,9 @@ Digite o usuario</string>
                         <pointsize>16</pointsize>
                        </font>
                       </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
+                      </property>
                       <property name="text">
                        <string>Digite a senha</string>
                       </property>
@@ -423,6 +473,9 @@ Digite o usuario</string>
                        <font>
                         <pointsize>14</pointsize>
                        </font>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
                       </property>
                       <property name="text">
                        <string>ENVIAR</string>
@@ -449,7 +502,7 @@ Digite o usuario</string>
                   </size>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">background-color: rgb(195, 195, 195);</string>
+                  <string notr="true">background-color: rgb(0, 85, 127);</string>
                  </property>
                  <property name="frameShape">
                   <enum>QFrame::StyledPanel</enum>
@@ -466,6 +519,9 @@ Digite o usuario</string>
                        <font>
                         <pointsize>16</pointsize>
                        </font>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
                       </property>
                       <property name="text">
                        <string>Cancelamento Cupom
@@ -492,6 +548,9 @@ Digite o usuario</string>
                         <pointsize>16</pointsize>
                        </font>
                       </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
+                      </property>
                       <property name="text">
                        <string>Digite a senha</string>
                       </property>
@@ -516,6 +575,9 @@ Digite o usuario</string>
                         <pointsize>14</pointsize>
                        </font>
                       </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
+                      </property>
                       <property name="text">
                        <string>ENVIAR</string>
                       </property>
@@ -526,10 +588,6 @@ Digite o usuario</string>
                  </layout>
                 </widget>
                </item>
-              </layout>
-             </item>
-             <item>
-              <layout class="QVBoxLayout" name="verticalLayout_4">
                <item>
                 <widget class="QFrame" name="frame_subtotal">
                  <property name="minimumSize">
@@ -545,7 +603,7 @@ Digite o usuario</string>
                   </size>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">background-color: rgb(195, 195, 195);</string>
+                  <string notr="true">background-color: rgb(0, 85, 127);</string>
                  </property>
                  <property name="frameShape">
                   <enum>QFrame::StyledPanel</enum>
@@ -569,6 +627,9 @@ Digite o usuario</string>
                         <pointsize>16</pointsize>
                        </font>
                       </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
+                      </property>
                       <property name="text">
                        <string/>
                       </property>
@@ -586,6 +647,9 @@ Digite o usuario</string>
                        <font>
                         <pointsize>16</pointsize>
                        </font>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
                       </property>
                       <property name="text">
                        <string>PIX</string>
@@ -605,6 +669,9 @@ Digite o usuario</string>
                         <pointsize>16</pointsize>
                        </font>
                       </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
+                      </property>
                       <property name="text">
                        <string>DINHEIRO</string>
                       </property>
@@ -622,6 +689,9 @@ Digite o usuario</string>
                        <font>
                         <pointsize>16</pointsize>
                        </font>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
                       </property>
                       <property name="text">
                        <string>VALOR PAGO</string>
@@ -641,6 +711,9 @@ Digite o usuario</string>
                         <pointsize>16</pointsize>
                        </font>
                       </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
+                      </property>
                       <property name="text">
                        <string>CREDITO</string>
                       </property>
@@ -658,6 +731,9 @@ Digite o usuario</string>
                        <font>
                         <pointsize>16</pointsize>
                        </font>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
                       </property>
                       <property name="text">
                        <string>DÉBITO</string>
@@ -677,6 +753,9 @@ Digite o usuario</string>
                         <pointsize>16</pointsize>
                        </font>
                       </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
+                      </property>
                       <property name="text">
                        <string>TROCO</string>
                       </property>
@@ -692,8 +771,11 @@ Digite o usuario</string>
                       </property>
                       <property name="font">
                        <font>
-                        <pointsize>16</pointsize>
+                        <pointsize>22</pointsize>
                        </font>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
                       </property>
                       <property name="text">
                        <string>SELECIONE A FORMA DE PAGAMENTO</string>
@@ -709,6 +791,9 @@ Digite o usuario</string>
                        <font>
                         <pointsize>16</pointsize>
                        </font>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
                       </property>
                       <property name="text">
                        <string>TOTAL</string>
@@ -728,6 +813,9 @@ Digite o usuario</string>
                         <pointsize>16</pointsize>
                        </font>
                       </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
+                      </property>
                       <property name="text">
                        <string>VALOR DA COMPRA</string>
                       </property>
@@ -745,6 +833,9 @@ Digite o usuario</string>
                        <font>
                         <pointsize>16</pointsize>
                        </font>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
                       </property>
                       <property name="text">
                        <string>FINALIZAR COMPRA</string>
@@ -764,6 +855,9 @@ Digite o usuario</string>
                         <pointsize>16</pointsize>
                        </font>
                       </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
+                      </property>
                      </widget>
                     </item>
                     <item row="5" column="1">
@@ -780,6 +874,9 @@ Digite o usuario</string>
                         <pointsize>16</pointsize>
                        </font>
                       </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
+                      </property>
                       <property name="text">
                        <string/>
                       </property>
@@ -791,6 +888,9 @@ Digite o usuario</string>
                        <font>
                         <pointsize>16</pointsize>
                        </font>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true"/>
                       </property>
                       <property name="text">
                        <string>PAGAMENTO EM</string>
