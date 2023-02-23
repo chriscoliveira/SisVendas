@@ -20,7 +20,10 @@ app = Dash(__name__)
 
 # assume you have a "long-form" data frame
 # see https://plotly.com/python/px-arguments/ for more options
-conn = sqlite3.connect('../DB/dbase.db')
+try:
+    conn = sqlite3.connect('../DB/dbase.db')
+except:
+    conn = sqlite3.connect('DB/dbase.db')
 categorias = ['produtos', 'vendas', 'usuarios']
 
 # cria o dataframe de vendas
@@ -47,10 +50,10 @@ app.layout = html.Div(children=[
         html.Div(children=[
             html.P('Tipo de Grafico',
                    style={'display': 'inline-block', }),
-            dcc.RadioItems(id='seletor_grafico', options=[
-                'VENDIDO', 'CANCELADO', ], value='Vendas', style={'display': 'flex'}
-            ),
-        ], style={'display': 'inline-block',  'padding-right': 20, 'height': '90px',  'vertical-align': 'top'}),
+            dcc.Dropdown(['VENDIDO', 'CANCELADO', 'MAIS VENDIDOS', 'RANKING OP'], value='VENDIDO',
+                         id='seletor_grafico', clearable=False),
+        ], style={'display': 'inline-block',  'padding-right': 30, 'width': '150px', 'height': '90px', 'vertical-align': 'top'}),
+
         html.Div(children=[
             html.P(children='Selecione o período: '),
             dcc.DatePickerRange(
@@ -99,23 +102,28 @@ def update_output(value, start_date, end_date, tipo, botao):
     end_date = pd.to_datetime(end_date) + timedelta(days=1)
     print(f'{start_date=}, {end_date=}, {tipo=}, {value=}')
     ultimo = str(end_date)[:10]
-    situacao = 'SIM'
-    if tipo == 'VENDIDO':
-        situacao = 'SIM'
-    else:
-        situacao = 'CANCELADO'
 
     # pesquisa por datas
     tabela_atualizada = df.loc[df["data"].between(pd.to_datetime(
         start_date), pd.to_datetime(end_date))]
     print(tabela_atualizada)
-    if value == 'Todos':
+    if tipo == 'VENDIDO' or tipo == 'CANCELADO':
+        if tipo == 'VENDIDO':
+            situacao = 'SIM'
+        elif tipo == 'CANCELADO':
+            situacao = 'CANCELADO'
+
+        if value == 'Todos':
+            tabela_atualizada = tabela_atualizada.loc[(tabela_atualizada['ativo']
+                                                       == situacao), :]
+        else:
+            tabela_atualizada = tabela_atualizada.loc[((tabela_atualizada['operador']
+                                                        == value) & (tabela_atualizada['ativo']
+                                                                     == situacao)), :]
+    if tipo == 'MAIS VENDIDOS':
         tabela_atualizada = tabela_atualizada.loc[(tabela_atualizada['ativo']
-                                                   == situacao), :]
-    else:
-        tabela_atualizada = tabela_atualizada.loc[((tabela_atualizada['operador']
-                                                    == value) & (tabela_atualizada['ativo']
-                                                                 == situacao)), :]
+                                                   == 'SIM'), :]
+        print(tabela_atualizada['itens'])
     # modifica para data simples
     tabela_atualizada['data'] = tabela_atualizada['data'].dt.strftime(
         '%d-%m-%Y')
