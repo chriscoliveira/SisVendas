@@ -1,1 +1,1 @@
-[{'Produto': 'ACUCAR', 'Quantidade': 60}, {'Produto': 'ANTIGA CERVEJA SKOL', 'Quantidade': 47}, {'Produto': 'CERVEJA SKOL', 'Quantidade': 240}, {'Produto': 'COCA COLA', 'Quantidade': 10}, {'Produto': 'COPO', 'Quantidade': 116}, {'Produto': 'HOTDOG', 'Quantidade': 128}]
+[]

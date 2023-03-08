@@ -1,6 +1,5 @@
 from dateutil.relativedelta import relativedelta
 from dash import Dash, html, dcc, Input, Output
-import dash_table
 import plotly.express as px
 import pandas as pd
 import sqlite3
@@ -56,7 +55,7 @@ app.layout = html.Div(children=[
         html.Div(children=[
             html.P('Tipo de Grafico',
                    style={'display': 'inline-block', }),
-            dcc.Dropdown(['VENDIDO', 'CANCELADO', 'MAIS VENDIDOS', 'RANKING OP'], value='VENDIDO',
+            dcc.Dropdown(['VENDIDO', 'CANCELADO'], value='VENDIDO',
                          id='seletor_grafico', clearable=False),
         ], style={'display': 'inline-block',  'padding': 10, 'width': '150px', 'height': '90px', 'vertical-align': 'top'}),
         # periodo
@@ -80,34 +79,39 @@ app.layout = html.Div(children=[
         html.Div(children=[
             dcc.Graph(
                 id='grafico_quantidade_vendas',
-                style={'display': 'inline-block',
-                       'width': '60%', 'textAlign': 'center'},
+                style={  # 'display': 'inline-block',
+                    'textAlign': 'center'},
                 config={'displayModeBar': False, },
 
             ), dcc.Graph(
                 id='grafico_quantidade_tipo',
-                style={'display': 'inline-block',
-                       'width': '40%', 'textAlign': 'center'},
+                style={  # 'display': 'inline-block',
+                    'textAlign': 'center',  'width': '100%'},
                 config={'displayModeBar': False}
-            )], style={'padding': 30, 'background-color': '#49aaff'})
+            ),
+            dcc.Graph(
+                id='grafico_quantidade',
+                style={  # 'display': 'inline-block',
+                    'textAlign': 'center', 'width': '100%'},
+                config={'displayModeBar': False}
+            ), dcc.Graph(
+                id='grafico_quantidade_operador',
+                style={  # 'display': 'inline-block',
+                    'textAlign': 'center',  'width': '100%'},
+                config={'displayModeBar': False}
+            )], style={'padding': 30, 'background-color': '#49aaff', 'textAlign': 'center'})
     ], style={'padding-bottom': 20, 'background-color': '#ffffff', 'vertical-align': 'top',  "textAlign": "center"}),
-    html.Div(children=[
-        dcc.Graph(
-            id='grafico_quantidade',
-            style={'display': 'inline-block',
-                   'width': '60%', 'textAlign': 'center'},
-            config={'displayModeBar': False}
-        )
-    ])
 
 
-], style={'background-color': '#49aaff', 'width': '90%', 'height': '100%',   "textAlign": "center", "border-style": "dotted"})
+
+], style={'background-color': '#49aaff', 'width': '90%', 'height': '100%',   "textAlign": "center", "border-style": "dotted", 'textAlign': 'center'})
 
 
 @ app.callback(
     Output('grafico_quantidade_vendas', 'figure'),
     Output('grafico_quantidade_tipo', 'figure'),
     Output('grafico_quantidade', 'figure'),
+    Output('grafico_quantidade_operador', 'figure'),
     [
         Input('dropdown_lista_operador', 'value'),
         Input("date_filter", "start_date"),
@@ -161,7 +165,7 @@ def update_output(value, start_date, end_date, tipo, n):
         tabela_atualizada_vendas = tabela_atualizada.rename(
             columns={'total_compra': 'Venda por Dia em R$', 'data': 'Periodo'})
 
-        print(tabela_atualizada_vendas.info(), tabela_atualizada_vendas)
+        # print(tabela_atualizada_vendas.info(), tabela_atualizada_vendas)
 
         fig = px.bar(tabela_atualizada_vendas, x="Periodo", y="Venda por Dia em R$", title=f'Vendas em R$ no Periodo de {start_date} á {ultimo}',
                      color="operador",)
@@ -201,6 +205,7 @@ def update_output(value, start_date, end_date, tipo, n):
         tabela_atualizada = tabela_atualizada.loc[(tabela_atualizada['ativo']
                                                    == 'SIM'), :]
         lista = tabela_atualizada['itens'].tolist()
+
         # Cria o dicionário para armazenar os dados de vendas de cada produto
         vendas_produtos = {}
         # Percorre as linhas do arquivo
@@ -226,12 +231,50 @@ def update_output(value, start_date, end_date, tipo, n):
         lista_vendas = sorted(lista_vendas, key=lambda x: x[0])
 
         tabela = []
+        lista_maisvendidos = {}
         with open('teste.txt', 'w') as f:
             for produto, quantidade in lista_vendas:
-                tabela.append({'Produto': produto, 'Quantidade': quantidade})
-            f.write(str(tabela))
+                tabela.append([produto, quantidade])
 
-        return fig, grafico_pizza, grafico_maisvendido
+            f.write(str(tabela))
+        df_tabela = pd.DataFrame(
+            tabela, columns=['PRODUTO', 'QUANTIDADE VENDIDA'])
+        grafico_maisvendido = px.bar(df_tabela.head(10), x="PRODUTO", y="QUANTIDADE VENDIDA", title=f'TOP 10 Produtos Mais Vendidos do período ',
+                                     )
+
+        grafico_maisvendido.update_layout(title=dict(
+            xanchor='center',
+            x=0.5
+        ),
+            legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1,
+            xanchor="center",
+            x=0.5
+        ))
+
+        rank_op = tabela_atualizada.groupby(
+            'operador', as_index=False).sum('valor_pago')
+        rank_op = rank_op.drop(columns=['coo',])
+
+        print(rank_op)
+        grafico_op = px.bar(rank_op, x="operador",
+                            y="total_compra", title=f'TOP 10 Operadores')
+
+        grafico_op.update_layout(title=dict(
+            xanchor='center',
+            x=0.5
+        ),
+            legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1,
+            xanchor="center",
+            x=0.5
+        ))
+
+        return fig, grafico_pizza, grafico_maisvendido, grafico_op
 
 
 if __name__ == '__main__':
