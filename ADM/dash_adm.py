@@ -1,5 +1,6 @@
 from dateutil.relativedelta import relativedelta
 from dash import Dash, html, dcc, Input, Output
+import dash_table
 import plotly.express as px
 import pandas as pd
 import sqlite3
@@ -90,7 +91,14 @@ app.layout = html.Div(children=[
                 config={'displayModeBar': False}
             )], style={'padding': 30, 'background-color': '#49aaff'})
     ], style={'padding-bottom': 20, 'background-color': '#ffffff', 'vertical-align': 'top',  "textAlign": "center"}),
-
+    html.Div(children=[
+        dcc.Graph(
+            id='grafico_quantidade',
+            style={'display': 'inline-block',
+                   'width': '60%', 'textAlign': 'center'},
+            config={'displayModeBar': False}
+        )
+    ])
 
 
 ], style={'background-color': '#49aaff', 'width': '90%', 'height': '100%',   "textAlign": "center", "border-style": "dotted"})
@@ -99,6 +107,7 @@ app.layout = html.Div(children=[
 @ app.callback(
     Output('grafico_quantidade_vendas', 'figure'),
     Output('grafico_quantidade_tipo', 'figure'),
+    Output('grafico_quantidade', 'figure'),
     [
         Input('dropdown_lista_operador', 'value'),
         Input("date_filter", "start_date"),
@@ -142,56 +151,87 @@ def update_output(value, start_date, end_date, tipo, n):
                                                        == situacao), :]
         else:
             tabela_atualizada = tabela_atualizada.loc[((tabela_atualizada['operador']
-                                                        == value) & (tabela_atualizada['ativo']
-                                                                     == situacao)), :]
-    if tipo == 'MAIS VENDIDOS':
+                                                      == value) & (tabela_atualizada['ativo']
+                                                                   == situacao)), :]
+
+        # modifica para data simples
+        tabela_atualizada['data'] = tabela_atualizada['data'].dt.strftime(
+            '%d/%m/%Y')
+
+        tabela_atualizada_vendas = tabela_atualizada.rename(
+            columns={'total_compra': 'Venda por Dia em R$', 'data': 'Periodo'})
+
+        print(tabela_atualizada_vendas.info(), tabela_atualizada_vendas)
+
+        fig = px.bar(tabela_atualizada_vendas, x="Periodo", y="Venda por Dia em R$", title=f'Vendas em R$ no Periodo de {start_date} á {ultimo}',
+                     color="operador",)
+
+        fig.update_layout(title=dict(
+            xanchor='center',
+            x=0.5
+        ),
+            legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1,
+            xanchor="center",
+            x=0.5
+        ))
+
+        tabela_atualizada_tipo = tabela_atualizada.rename(
+            columns={'total_compra': 'Venda em R$', 'forma_pagamento': 'Tipo'})
+
+        grafico_pizza = px.pie(tabela_atualizada_tipo,
+                               values='Venda em R$',
+                               names='Tipo',
+                               title=f'Vendas por tipo de pagamento'
+                               )
+        grafico_pizza.update_layout(title=dict(
+            xanchor='center',
+            x=0.5
+        ), legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1,
+            xanchor="center",
+            x=0.5
+        ))
+
+        # cria os dados de itens mais vendidos
         tabela_atualizada = tabela_atualizada.loc[(tabela_atualizada['ativo']
                                                    == 'SIM'), :]
+        lista = tabela_atualizada['itens'].tolist()
+        # Cria o dicionário para armazenar os dados de vendas de cada produto
+        vendas_produtos = {}
+        # Percorre as linhas do arquivo
+        for linha in lista:
+            # Converte a linha em uma lista de tuplas contendo os dados de vendas de cada produto
+            dados_vendas = eval(linha.strip())
 
-    # modifica para data simples
-    tabela_atualizada['data'] = tabela_atualizada['data'].dt.strftime(
-        '%d/%m/%Y')
+            # Percorre cada tupla da lista
+            for quantidade, codigo, produto, valor in dados_vendas:
+                # Verifica se o produto já existe no dicionário
+                if produto in vendas_produtos:
+                    # Adiciona a quantidade da tupla atual ao valor existente
+                    vendas_produtos[produto] += quantidade
+                else:
+                    # Adiciona o produto como chave e a quantidade como valor
+                    vendas_produtos[produto] = quantidade
 
-    tabela_atualizada_vendas = tabela_atualizada.rename(
-        columns={'total_compra': 'Venda por Dia em R$', 'data': 'Periodo'})
+        # Cria uma lista de tuplas contendo o produto e a quantidade total vendida
+        lista_vendas = [(produto, quantidade)
+                        for produto, quantidade in vendas_produtos.items()]
 
-    print(tabela_atualizada_vendas.info(), tabela_atualizada_vendas)
+        # Classifica a lista em ordem alfabética pelo produto
+        lista_vendas = sorted(lista_vendas, key=lambda x: x[0])
 
-    fig = px.bar(tabela_atualizada_vendas, x="Periodo", y="Venda por Dia em R$", title=f'Vendas em R$ no Periodo de {start_date} á {ultimo}',
-                 color="operador",)
+        tabela = []
+        with open('teste.txt', 'w') as f:
+            for produto, quantidade in lista_vendas:
+                tabela.append({'Produto': produto, 'Quantidade': quantidade})
+            f.write(str(tabela))
 
-    fig.update_layout(title=dict(
-        xanchor='center',
-        x=0.5
-    ),
-        legend=dict(
-        orientation="h",
-        yanchor="bottom",
-        y=1,
-        xanchor="center",
-        x=0.5
-    ))
-
-    tabela_atualizada_tipo = tabela_atualizada.rename(
-        columns={'total_compra': 'Venda em R$', 'forma_pagamento': 'Tipo'})
-
-    grafico_pizza = px.pie(tabela_atualizada_tipo,
-                           values='Venda em R$',
-                           names='Tipo',
-                           title=f'Vendas por tipo de pagamento'
-                           )
-    grafico_pizza.update_layout(title=dict(
-        xanchor='center',
-        x=0.5
-    ), legend=dict(
-        orientation="h",
-        yanchor="bottom",
-        y=1,
-        xanchor="center",
-        x=0.5
-    ))
-    # print(tabela_atualizada_vendas)
-    return fig, grafico_pizza
+        return fig, grafico_pizza, grafico_maisvendido
 
 
 if __name__ == '__main__':
