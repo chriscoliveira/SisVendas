@@ -61,7 +61,7 @@ app.layout = html.Div(children=[
                 html.P(children='Selecione o período: '),
                 dcc.DatePickerRange(
                     id='date_filter',
-                    start_date=date(int(ano), int(mes)-2, 1),
+                    start_date=date(int(ano), int(mes), 1),
                     end_date=date(int(ano), int(mes), int(ultimodia)),
                     display_format='D-M-Y', style={}),
             ], style={'background-color': corMenu, 'display': 'inline-block', 'height': '100px', 'padding': 10,  'vertical-align': 'top'}),
@@ -289,4 +289,4 @@ def update_output(value, start_date, end_date, tipo, n):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)
